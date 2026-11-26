@@ -188,6 +188,9 @@
     <p class="cap" id="notifMsg"></p>
     <span class="lbl">الصوت</span>
     <button class="outline" id="sndBtn">صوت الاحتفال: شغال 🎈</button>
+    <span class="lbl">الشاشة</span>
+    <button class="outline" id="wakeBtn">الشاشة صاحية وقت الجلسة: شغال ☀️</button>
+    <p class="cap" id="wakeMsg"></p>
     <span class="lbl" style="margin-top:10px">التحديثات</span>
     <button class="outline" id="updBtn">دوّر على تحديث</button>
     <p class="cap" id="updMsg"></p>
@@ -221,7 +224,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١١</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٢</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -641,7 +644,7 @@ function tick() {
   var left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
   remaining = left;
   if (left <= 0) {
-    running = false; finished = true; stopTick();
+    running = false; finished = true; stopTick(); syncWakeLock();
     store('timer-run.v1', null);
     logSession(Math.round(minutes), false);
     endMsg = 'خلصت! أحسنت، خد بريك صغير 🤍';
@@ -660,26 +663,27 @@ function saveRun() {
   else store('timer-run.v1', null);
 }
 $('startBtn').onclick = function() {
-  if (running) { running = false; stopTick(); saveRun(); render(); return; }
+  if (running) { running = false; stopTick(); saveRun(); syncWakeLock(); render(); return; }
   if (tasks.length === 0 && remaining >= minutes * 60 && !finished) { $('startHint').style.display = 'block'; return; }
   endAt = Date.now() + remaining * 1000;
   running = true; finished = false;
   timerId = setInterval(tick, 500);
   saveRun();
+  syncWakeLock();
   render();
 };
 $('earlyBtn').onclick = function() {
   store('timer-run.v1', null);
   var elapsedMin = Math.floor((minutes * 60 - remaining) / 60);
   var credit = Math.floor(elapsedMin / 4);
-  running = false; finished = true; stopTick();
+  running = false; finished = true; stopTick(); syncWakeLock();
   logSession(credit, true);
   endMsg = credit > 0
     ? 'جلسة بدري خلصت. اتحسبتلك ' + credit + ' دقيقة، ربع اللي ذاكرته. المرة الجاية كمّل للآخر 💪'
     : 'الجلسة كانت قصيرة أوي، فما اتحسبش وقت. المرة الجاية كمّل أكتر 💪';
   render();
 };
-$('resetBtn').onclick = function() { running = false; finished = false; stopTick(); store('timer-run.v1', null); remaining = minutes*60; render(); };
+$('resetBtn').onclick = function() { running = false; finished = false; stopTick(); syncWakeLock(); store('timer-run.v1', null); remaining = minutes*60; render(); };
 $('quoteBtn').onclick = function() { quoteIdx = quoteIdx + 1; render(); };
 $('clearLog').onclick = function() { sessions = []; store('study-log.v1', sessions); render(); };
 $('updBtn').onclick = function() { if (window.__swCheck) window.__swCheck('updMsg'); };
@@ -696,6 +700,29 @@ $('notifBtn').onclick = function() {
 var soundOn = read('sound-enabled.v1', true);
 function applySound() { $('sndBtn').textContent = soundOn ? 'صوت الاحتفال: شغال 🎈' : 'صوت الاحتفال: ميوت 🔕'; }
 $('sndBtn').onclick = function() { soundOn = !soundOn; store('sound-enabled.v1', soundOn); applySound(); };
+
+var wakeOn = read('keep-screen.v1', true);
+var wakeLock = null;
+var wakeSupported = 'wakeLock' in navigator;
+function applyWake() {
+  $('wakeBtn').textContent = wakeOn ? 'الشاشة صاحية وقت الجلسة: شغال ☀️' : 'الشاشة صاحية وقت الجلسة: مقفولة 🌙';
+  $('wakeMsg').textContent = wakeSupported ? '' : 'المتصفح ده مش بيدعم تثبيت الشاشة وقت الجلسة. زوّدي "مهلة الشاشة" من إعدادات الموبايل.';
+}
+$('wakeBtn').onclick = function() { wakeOn = !wakeOn; store('keep-screen.v1', wakeOn); applyWake(); syncWakeLock(); };
+function releaseWakeLock() {
+  if (wakeLock) { try { wakeLock.release(); } catch(e) {} wakeLock = null; }
+}
+function syncWakeLock() {
+  if (!wakeOn || !running || document.hidden) { releaseWakeLock(); return; }
+  if (!wakeSupported || wakeLock) return;
+  try {
+    navigator.wakeLock.request('screen').then(function(lock) {
+      if (!running || !wakeOn) { try { lock.release(); } catch(e) {} return; }
+      wakeLock = lock;
+      lock.addEventListener('release', function() { if (wakeLock === lock) wakeLock = null; });
+    }).catch(function() {});
+  } catch(e) {}
+}
 
 function applause() {
   try {
@@ -823,6 +850,7 @@ setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 200
 applyGender();
 applyMode();
 applySound();
+applyWake();
 var savedRun = read('timer-run.v1', null);
 if (savedRun && savedRun.endAt) {
   minutes = savedRun.minutes || minutes;
@@ -830,6 +858,7 @@ if (savedRun && savedRun.endAt) {
   if (left > 0) {
     remaining = left; endAt = savedRun.endAt; running = true; finished = false;
     timerId = setInterval(tick, 500);
+    syncWakeLock();
   } else {
     remaining = 0; running = false; finished = true;
     store('timer-run.v1', null);
@@ -840,7 +869,7 @@ if (savedRun && savedRun.endAt) {
   minutes = savedRun.minutes || minutes;
   remaining = Math.max(1, savedRun.remaining);
 }
-document.addEventListener('visibilitychange', function() { if (!document.hidden && running) tick(); });
+document.addEventListener('visibilitychange', function() { if (!document.hidden && running) { tick(); syncWakeLock(); } });
 window.addEventListener('focus', function() { if (running) tick(); });
 if (!userName) openOnboarding(1);
 else if (!userGender) openOnboarding(3);
@@ -902,4 +931,4 @@ $('splash').addEventListener('click', hideSplash);
 })();
 </script>
 </body>
-</html>
+  </html>
