@@ -74,6 +74,12 @@
   .histday .hmins { color:var(--teal); white-space:nowrap; }
   .histday .ht { display:block; padding:2px 0; font-weight:400; }
   .joinbtn { display:block; text-align:center; background:var(--teal); color:#fff; border-radius:12px; padding:14px 16px; font-size:16px; font-weight:700; text-decoration:none; margin-top:12px; }
+  .chart { display:flex; align-items:flex-end; gap:6px; height:150px; border-bottom:2px solid var(--hair); padding:0 2px; }
+  .barcol { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+  .bar { width:100%; background:var(--teal); border-radius:6px 6px 0 0; min-height:3px; }
+  .barval { font-size:11px; color:var(--ink2); margin-bottom:4px; min-height:14px; }
+  .chartlbl { display:flex; gap:6px; padding:6px 2px 0; }
+  .chartlbl span { flex:1; text-align:center; font-size:11px; color:var(--ink2); min-width:0; overflow:hidden; }
   .tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--hair); z-index:50; }
   .tabbtn { flex:1; padding:14px 0 16px; background:none; border:none; font-size:15px; font-weight:600; color:var(--ink2); }
   .tabbtn.sel { color:var(--teal); box-shadow:inset 0 3px 0 var(--teal); }
@@ -272,9 +278,24 @@
 </div>
 </main>
 
+<div id="tabReview" style="display:none">
+  <h1>المراجعة</h1>
+  <p class="fact">المهام اللي خلصتها يوم بيوم</p>
+  <p class="intro">الرسم ده بيعدّ المهام اللي علّمت عليها ✓ كل يوم، مش وقت المذاكرة، عشان تشوف إذا كنت طالع ولا نازل.</p>
+  <section>
+    <div class="chips" id="rangeSeg"></div>
+    <div class="chart" id="chart"></div>
+    <div class="chartlbl" id="chartLbl"></div>
+  </section>
+  <section>
+    <div class="note" id="trendMsg"></div>
+  </section>
+</div>
+
 <nav class="tabbar">
   <button class="tabbtn" id="tabBtnSetup">الإعداد ⚙️</button>
   <button class="tabbtn" id="tabBtnTimer">التايمر ⏱️</button>
+  <button class="tabbtn" id="tabBtnReview">المراجعة 📈</button>
 </nav>
 
 <div class="overlay" id="overlay" style="display:none">
@@ -512,6 +533,44 @@ function render() {
   var rv = rating && rating.d === today ? rating.v : '';
   markChips('ratings', rv);
   $('ratingMsg').textContent = rv ? 'اتسجّل تقييمك للنهارده ' + formatDay(today) + '.' : '';
+  renderReview();
+}
+
+var reviewRange = 7;
+function dayKeyOf(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function renderReview() {
+  if (!$('chart')) return;
+  var doneByDay = {};
+  dayHist.forEach(function(h){ var c = 0; (h.tasks || []).forEach(function(t){ if (t.done) c++; }); doneByDay[h.d] = (doneByDay[h.d] || 0) + c; });
+  doneByDay[todayKey()] = tasks.filter(function(t){ return t.done; }).length;
+  var now = new Date(), days = [], i, d;
+  for (i = reviewRange - 1; i >= 0; i--) {
+    d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    days.push({ d: d, c: doneByDay[dayKeyOf(d)] || 0 });
+  }
+  var cur = days.reduce(function(a, x){ return a + x.c; }, 0);
+  var prev = 0;
+  for (i = reviewRange; i < reviewRange * 2; i++) {
+    d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    prev += doneByDay[dayKeyOf(d)] || 0;
+  }
+  var max = Math.max(1, Math.max.apply(null, days.map(function(x){ return x.c; })));
+  $('chart').innerHTML = days.map(function(x){
+    var h = Math.round(x.c / max * 100);
+    return '<div class="barcol"><span class="barval">' + (x.c || '') + '</span><div class="bar" style="height:' + Math.max(3, h) + '%"></div></div>';
+  }).join('');
+  $('chartLbl').innerHTML = days.map(function(x, idx){
+    var lbl = reviewRange === 7 ? x.d.toLocaleDateString('ar-EG', { weekday:'short' }) : (idx % 5 === 0 ? String(x.d.getDate()) : '');
+    return '<span>' + lbl + '</span>';
+  }).join('');
+  var label = reviewRange === 7 ? '٧ أيام' : '٣٠ يوم';
+  var msg;
+  if (cur === 0 && prev === 0) msg = 'لسه مفيش مهام متعلّم عليها ✓. علّم مهامك كل ما تخلصها، وهتلاقي الرسم بيتعبّي هنا يوم ورا يوم.';
+  else if (cur > prev) msg = 'طالع ↑ خلصت ' + cur + ' مهمة في آخر ' + label + '، أكتر بـ ' + (cur - prev) + ' من الفترة اللي قبلها. استمر 💪';
+  else if (cur < prev) msg = 'نازل ↓ خلصت ' + cur + ' مهمة في آخر ' + label + '، أقل بـ ' + (prev - cur) + ' من الفترة اللي قبلها. يوم جديد بكرة، ونرجع أقوى.';
+  else msg = 'ثابت = نفس العدد (' + cur + ' مهمة) في آخر ' + label + ' زي الفترة اللي قبلها.';
+  $('trendMsg').textContent = msg;
+  markChips('rangeSeg', String(reviewRange));
 }
 
 function markChips(id, val) {
@@ -534,6 +593,7 @@ makeChips('themes', THEMES, function(v){ theme = v; store('timer-theme.v1', them
 makeChips('fonts', FONTS, function(v){ font = v; store('timer-font.v1', font); render(); });
 makeChips('tstyles', [ {v:'classic', l:'عادي'}, {v:'road', l:'طريق الحلم 🏁'} ], function(v){ timerStyle = v; store('timer-style.v1', timerStyle); render(); });
 makeChips('ratings', RATINGS, function(v){ rating = { d: todayKey(), v: v }; store('day-rating.v1', rating); render(); });
+makeChips('rangeSeg', [ {v:'7', l:'٧ أيام'}, {v:'30', l:'٣٠ يوم'} ], function(v){ reviewRange = +v; renderReview(); });
 
 $('slider').oninput = function() { minutes = +this.value; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-minutes.v1', minutes); render(); };
 
@@ -672,11 +732,14 @@ function showTab(t) {
   activeTab = t; store('active-tab.v1', t);
   $('tabSetup').style.display = t === 'setup' ? 'block' : 'none';
   $('tabTimer').style.display = t === 'timer' ? 'block' : 'none';
+  $('tabReview').style.display = t === 'review' ? 'block' : 'none';
   $('tabBtnSetup').classList.toggle('sel', t === 'setup');
   $('tabBtnTimer').classList.toggle('sel', t === 'timer');
+  $('tabBtnReview').classList.toggle('sel', t === 'review');
 }
 $('tabBtnSetup').onclick = function() { showTab('setup'); };
 $('tabBtnTimer').onclick = function() { showTab('timer'); };
+$('tabBtnReview').onclick = function() { showTab('review'); };
 $('goTimer').onclick = function() { showTab('timer'); window.scrollTo(0,0); };
 $('startHint').onclick = function() { showTab('setup'); };
 
@@ -704,7 +767,7 @@ document.addEventListener('visibilitychange', function() { if (!document.hidden 
 window.addEventListener('focus', function() { if (running) tick(); });
 if (!userName) openOnboarding(1);
 else if (!userGender) openOnboarding(3);
-showTab(activeTab === 'setup' || activeTab === 'timer' ? activeTab : (tasks.length ? 'timer' : 'setup'));
+showTab(activeTab === 'setup' || activeTab === 'timer' || activeTab === 'review' ? activeTab : (tasks.length ? 'timer' : 'setup'));
 render();
 function hideSplash() { var sp = $('splash'); if (!sp || sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(function(){ sp.style.display = 'none'; }, 600); }
 setTimeout(hideSplash, 1300);
