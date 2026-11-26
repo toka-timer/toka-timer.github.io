@@ -209,7 +209,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٨</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٩</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -792,7 +792,7 @@ $('splash').addEventListener('click', hideSplash);
     refreshing = true;
     location.reload();
   });
-  navigator.serviceWorker.register('sw.js').then(function(reg){
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function(reg){
     window.__swReg = reg;
     reg.update();
     setInterval(function(){ reg.update(); }, 15*60*1000);
