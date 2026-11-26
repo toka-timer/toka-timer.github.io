@@ -246,7 +246,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٨</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٩</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -1150,7 +1150,14 @@ $('splash').addEventListener('click', hideSplash);
     setTimeout(function(){
       var b = document.getElementById('update-banner');
       if (b && b.style.display === 'block') { if (m) m.textContent = 'في نسخة جديدة، بتتحدث تلقائيًا دلوقتي...'; }
-      else if (m) m.textContent = 'إنتي على آخر نسخة ✓';
+      else {
+        try {
+          caches.keys().then(function(keys){
+            var cur = keys.filter(function(k){ return k.indexOf('toka-timer-') === 0; }).sort().pop();
+            if (m) m.textContent = 'إنتي على آخر نسخة ✓ — الشغّالة دلوقتي: ' + (cur ? cur.replace('toka-timer-', '') : 'مش معروفة');
+          }).catch(function(){ if (m) m.textContent = 'إنتي على آخر نسخة ✓'; });
+        } catch(e) { if (m) m.textContent = 'إنتي على آخر نسخة ✓'; }
+      }
     }, 3000);
   };
   function showUpdate(worker){
