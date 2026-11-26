@@ -95,6 +95,11 @@
   .tabbtn { flex:1; padding:14px 0 16px; background:none; border:none; font-size:15px; font-weight:600; color:var(--ink2); }
   .tabbtn.sel { color:var(--teal); box-shadow:inset 0 3px 0 var(--teal); }
   .deco { font-size:22px; letter-spacing:14px; opacity:.92; min-height:8px; }
+  .streak { display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .streakpill { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); border-radius:999px; padding:6px 14px; }
+  .streakpill svg { width:22px; height:22px; display:block; }
+  .streaknum { font-size:17px; font-weight:700; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.4); }
+  .streakcap { font-size:12px; color:rgba(255,255,255,.94); text-shadow:0 1px 6px rgba(0,0,0,.5); }
   .goTimer { display:block; width:100%; border:none; border-radius:999px; background:var(--teal); color:#fff; padding:15px; font-size:16px; font-weight:700; margin-bottom:28px; }
   .gendrow { display:flex; gap:10px; }
   .gendrow .obtn { margin:0; }
@@ -179,6 +184,9 @@
     <div class="chips" id="fonts"></div>
     <span class="lbl">شكل التايمر</span>
     <div class="chips" id="tstyles"></div>
+    <span class="lbl">شكل سلسلة الأيام</span>
+    <div class="chips" id="streakChips"></div>
+    <p class="cap">السلسلة بتعد الأيام اللي ورا بعض اللي ذاكرت فيها. اليوم بيتحسب لما تكمل جلسة كاملة للآخر، والإنهاء البدري مش بيحسب اليوم.</p>
     <span class="lbl">الإضاءة</span>
     <button class="outline" id="modeBtn">الوضع الليلي 🌙</button>
   </section>
@@ -238,7 +246,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٧</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٨</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -295,6 +303,10 @@
           </g>
         </svg>
         <p class="dist" id="distText"></p>
+      </div>
+      <div class="streak" id="streakBox">
+        <span class="streakpill"><span id="streakIcon"></span><bdi class="streaknum" id="streakNum">٠</bdi></span>
+        <span class="streakcap" id="streakCap"></span>
       </div>
       <p class="quote" id="quote"></p>
       <div class="controls">
@@ -579,6 +591,8 @@ function render() {
   }).join('');
   var rv = rating && rating.d === today ? rating.v : '';
   markChips('ratings', rv);
+  markChips('streakChips', streakStyle);
+  renderStreak();
   $('ratingMsg').textContent = rv ? 'اتسجّل تقييمك للنهارده ' + formatDay(today) + '.' : '';
   renderReview();
 }
@@ -641,6 +655,7 @@ makeChips('fonts', FONTS, function(v){ font = v; store('timer-font.v1', font); r
 makeChips('tstyles', [ {v:'classic', l:'عادي'}, {v:'road', l:'طريق الحلم 🏁'} ], function(v){ timerStyle = v; store('timer-style.v1', timerStyle); render(); });
 makeChips('ratings', RATINGS, function(v){ rating = { d: todayKey(), v: v }; store('day-rating.v1', rating); render(); });
 makeChips('rangeSeg', [ {v:'7', l:'٧ أيام'}, {v:'30', l:'٣٠ يوم'} ], function(v){ reviewRange = +v; renderReview(); });
+makeChips('streakChips', [ {v:'flame', l:'نار 🔥'}, {v:'bow', l:'فيونكة 🎀'}, {v:'rocket', l:'صاروخ 🚀'} ], function(v){ streakStyle = v; store('streak-style.v1', streakStyle); render(); });
 
 $('slider').oninput = function() { minutes = +this.value; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-minutes.v1', minutes); render(); };
 
@@ -662,6 +677,61 @@ function logSession(mins, partial) {
   store('study-log.v1', sessions);
 }
 
+var STREAK_STYLES = {
+  flame: { c: '#ff8a3d' },
+  bow: { c: '#ef7bab' },
+  rocket: { c: '#5aa2ef' }
+};
+var streakStyle = read('streak-style.v1', 'flame');
+if (!STREAK_STYLES[streakStyle]) streakStyle = 'flame';
+var streak = read('streak.v1', null);
+function fullDays() { var s = {}; sessions.forEach(function(x){ if (!x.partial) s[x.d] = true; }); return s; }
+(function seedStreak() {
+  if (streak && typeof streak.count === 'number') return;
+  var days = fullDays();
+  var d = new Date();
+  if (!days[todayKey()]) d.setDate(d.getDate() - 1);
+  var n = 0, last = null;
+  while (days[dayKeyOf(d)]) { if (!last) last = dayKeyOf(d); n++; d.setDate(d.getDate() - 1); }
+  streak = { lastDay: last, count: n };
+  store('streak.v1', streak);
+})();
+function bumpStreak() {
+  var t = todayKey();
+  if (streak && streak.lastDay === t) return;
+  var y = new Date(); y.setDate(y.getDate() - 1);
+  var base = (streak && streak.lastDay === dayKeyOf(y)) ? streak.count : 0;
+  streak = { lastDay: t, count: base + 1 };
+  store('streak.v1', streak);
+}
+function streakSVG(style, filled) {
+  var c = STREAK_STYLES[style].c;
+  var op = filled ? '1' : '.28';
+  var inner = '';
+  if (style === 'flame') {
+    return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path opacity="' + op + '" fill="' + c + '" d="M12 2c.8 3.5-3.8 5.6-3.8 9.6a3.8 3.8 0 0 0 7.6 0c0-1.7-.8-2.8-1.5-3.7 1.7 1.3 4.2 3.7 4.2 7.1a6.5 6.5 0 1 1-13 0C5.5 9.4 10.6 7.4 12 2z"/>' + (filled ? '<path fill="#ffd9a0" d="M12 12.5c.5 2-1.9 2.9-1.9 4.7a1.9 1.9 0 0 0 3.8 0c0-.9-.4-1.4-.8-1.9.9.7 2.1 1.9 2.1 3.6a3.2 3.2 0 1 1-6.4 0c0-2.8 2.5-3.9 3.2-6.4z"/>' : '') + '</svg>';
+  }
+  if (style === 'bow') {
+    return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g opacity="' + op + '" fill="' + c + '"><path d="M11 11C8.5 7.2 4.6 6.2 3.4 8.2 2.2 10.2 3.9 13.9 6.4 13.9c1.9 0 3.6-1.2 4.6-2.9z"/><path d="M13 11c2.5-3.8 6.4-4.8 7.6-2.8 1.2 2-.5 5.7-3 5.7-1.9 0-3.6-1.2-4.6-2.9z"/><path d="M10.3 13.2L7.8 20l3.2-1.6 1-2.8z"/><path d="M13.7 13.2L16.2 20l-3.2-1.6-1-2.8z"/><circle cx="12" cy="12.2" r="2.1"/></g></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g opacity="' + op + '"><path fill="' + c + '" d="M12 1.8c3.1 2.1 4.8 5.7 4.8 9.6l-1.9 3.1h-5.8l-1.9-3.1C7.2 7.5 8.9 3.9 12 1.8z"/><circle cx="12" cy="9.3" r="1.9" fill="#fff" opacity=".85"/><path fill="' + c + '" d="M7.9 12.3L4.9 17l3.1-.8zM16.1 12.3L19.1 17l-3.1-.8z"/>' + (filled ? '<path fill="#ffb14d" d="M10.3 15.8c.5 1.7 1 2.9 1.7 5.2.7-2.3 1.2-3.5 1.7-5.2z"/>' : '') + '</g></svg>';
+}
+function renderStreak() {
+  var box = $('streakBox'); if (!box) return;
+  try {
+    var t = todayKey();
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    var live = streak && (streak.lastDay === t || streak.lastDay === dayKeyOf(y));
+    var count = live ? streak.count : 0;
+    var doneToday = !!(streak && streak.lastDay === t);
+    $('streakIcon').innerHTML = streakSVG(streakStyle, doneToday);
+    $('streakNum').textContent = String(count).replace(/[0-9]/g, function(c){ return AR_DIGITS[+c]; });
+    $('streakCap').textContent = doneToday
+      ? 'يوم ورا بعض — النهارده اتحسب ✓'
+      : (count > 0 ? 'يوم ورا بعض — كمّل جلسة كاملة عشان يتحسب النهارده' : 'كمّل جلسة كاملة النهارده وابدأ سلسلتك');
+  } catch(e) {}
+}
+
 function tick() {
   var left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
   remaining = left;
@@ -669,6 +739,7 @@ function tick() {
     running = false; finished = true; stopTick(); syncWakeLock();
     store('timer-run.v1', null);
     logSession(Math.round(minutes), false);
+    bumpStreak();
     endMsg = 'خلصت! أحسنت، خد بريك صغير 🤍';
     try { navigator.vibrate && navigator.vibrate([200,100,200]); } catch(e) {}
     try {
@@ -1014,6 +1085,7 @@ if (savedRun && savedRun.endAt) {
     remaining = 0; running = false; finished = true;
     store('timer-run.v1', null);
     logSession(Math.round(minutes), false);
+    bumpStreak();
     endMsg = 'خلصت! أحسنت، خد بريك صغير 🤍';
   }
 } else if (savedRun && typeof savedRun.remaining === 'number') {
@@ -1093,4 +1165,4 @@ $('splash').addEventListener('click', hideSplash);
 })();
 </script>
 </body>
-</html>
+  </html>
