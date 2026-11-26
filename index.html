@@ -189,7 +189,11 @@
     <p class="cap" id="notifMsg"></p>
     <span class="lbl">الصوت</span>
     <button class="outline" id="sndBtn">صوت الاحتفال: شغال 🎈</button>
-    <span class="lbl">الشاشة</span>
+    <span class="lbl" style="margin-top:10px">صوت خلفية وقت المذاكرة</span>
+    <div class="chips" id="ambChips"></div>
+    <input type="range" id="ambVol" min="5" max="100" value="40" style="width:100%;margin-top:8px">
+    <p class="cap" id="ambMsg"></p>
+    <span class="lbl" style="margin-top:10px">الشاشة</span>
     <button class="outline" id="wakeBtn">الشاشة صاحية وقت الجلسة: شغال ☀️</button>
     <p class="cap" id="wakeMsg"></p>
     <span class="lbl" style="margin-top:10px">التحديثات</span>
@@ -232,7 +236,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٣</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٤</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -537,6 +541,7 @@ function render() {
   markChips('themes', theme);
   markChips('tstyles', timerStyle);
   markChips('fonts', font);
+  updateMedia();
   renderWho();
   renderTasks();
   var today = todayKey();
@@ -662,8 +667,9 @@ function tick() {
     } catch(e) {}
   }
   render();
+  updateMedia();
 }
-function stopTick() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function stopTick() { if (timerId) { clearInterval(timerId); timerId = null; } stopAmbient(); }
 
 function saveRun() {
   if (running) store('timer-run.v1', { endAt: endAt, minutes: minutes });
@@ -676,6 +682,7 @@ $('startBtn').onclick = function() {
   endAt = Date.now() + remaining * 1000;
   running = true; finished = false;
   timerId = setInterval(tick, 500);
+  startAmbient();
   saveRun();
   syncWakeLock();
   render();
@@ -708,6 +715,105 @@ $('notifBtn').onclick = function() {
 var soundOn = read('sound-enabled.v1', true);
 function applySound() { $('sndBtn').textContent = soundOn ? 'صوت الاحتفال: شغال 🎈' : 'صوت الاحتفال: ميوت 🔕'; }
 $('sndBtn').onclick = function() { soundOn = !soundOn; store('sound-enabled.v1', soundOn); applySound(); };
+
+var AMBIENTS = [ {v:'off', l:'من غير صوت'}, {v:'rain', l:'مطر 🌧️'}, {v:'noise', l:'ضوضاء هادية 🤍'} ];
+var ambient = read('timer-ambient.v1', 'off');
+if (!AMBIENTS.some(function(a){ return a.v === ambient; })) ambient = 'off';
+var ambVol = read('timer-ambient-vol.v1', 0.4);
+var ambCtx = null, ambNodes = [];
+
+function stopAmbient() {
+  ambNodes.forEach(function(n){ try { if (n.stop) n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
+  ambNodes = [];
+}
+function startAmbient() {
+  if (ambient === 'off') return;
+  try {
+    if (!ambCtx) ambCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ambCtx.state === 'suspended') ambCtx.resume();
+    stopAmbient();
+    var len = ambCtx.sampleRate * 4;
+    var buf = ambCtx.createBuffer(1, len, ambCtx.sampleRate);
+    var d = buf.getChannelData(0), last = 0, i;
+    for (i = 0; i < len; i++) {
+      var w = Math.random() * 2 - 1;
+      if (ambient === 'noise') { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }
+      else d[i] = w;
+    }
+    var g = ambCtx.createGain(); g.gain.value = ambVol * 0.55;
+    if (ambient === 'rain') {
+      var src = ambCtx.createBufferSource(); src.buffer = buf; src.loop = true;
+      var lp = ambCtx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
+      src.connect(lp); lp.connect(g);
+      var src2 = ambCtx.createBufferSource(); src2.buffer = buf; src2.loop = true; src2.playbackRate.value = 1.7;
+      var bp = ambCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 0.4;
+      var g2 = ambCtx.createGain(); g2.gain.value = ambVol * 0.2;
+      src2.connect(bp); bp.connect(g2); g2.connect(ambCtx.destination);
+      var lfo = ambCtx.createOscillator(); lfo.frequency.value = 0.11;
+      var lfoG = ambCtx.createGain(); lfoG.gain.value = ambVol * 0.12;
+      lfo.connect(lfoG); lfoG.connect(g.gain);
+      src2.start(); lfo.start(); src.start();
+      ambNodes = [src, lp, src2, bp, g2, lfo, lfoG, g];
+    } else {
+      var srcN = ambCtx.createBufferSource(); srcN.buffer = buf; srcN.loop = true;
+      var lpN = ambCtx.createBiquadFilter(); lpN.type = 'lowpass'; lpN.frequency.value = 900;
+      srcN.connect(lpN); lpN.connect(g);
+      srcN.start();
+      ambNodes = [srcN, lpN, g];
+    }
+    g.connect(ambCtx.destination);
+  } catch(e) {}
+}
+function applyAmbient() {
+  markChips('ambChips', ambient);
+  $('ambVol').style.display = ambient === 'off' ? 'none' : 'block';
+  $('ambVol').value = Math.round(ambVol * 100);
+  $('ambMsg').textContent = ambient === 'off'
+    ? 'لو فعّلت صوت، هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي تشوفه من شريط الإشعارات من غير ما تفتح التطبيق.'
+    : 'الصوت هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي في شريط الإشعارات. لو اخترت "من غير صوت" الإشعار ده مش بيظهر.';
+}
+makeChips('ambChips', AMBIENTS, function(v) {
+  ambient = v; store('timer-ambient.v1', ambient); applyAmbient();
+  if (running) { if (v === 'off') stopAmbient(); else startAmbient(); }
+});
+$('ambVol').addEventListener('change', function() {
+  ambVol = Math.max(0.05, Math.min(1, +this.value / 100));
+  store('timer-ambient-vol.v1', ambVol); applyAmbient();
+  if (running && ambient !== 'off') startAmbient();
+});
+
+var mediaOn = 'mediaSession' in navigator;
+var AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+function fmtAr(t) { return fmt(t).replace(/[0-9]/g, function(c){ return AR_DIGITS[+c]; }); }
+var lastMediaBucket = null;
+function updateMedia() {
+  if (!mediaOn) return;
+  try {
+    var bucket = running ? Math.floor(remaining / 10) : (finished ? -2 : -3);
+    if (bucket === lastMediaBucket) return;
+    lastMediaBucket = bucket;
+    if (running) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'باقي ' + fmtAr(remaining) + ' — جلسة مذاكرة',
+        artist: userDream ? ('الهدف: ' + userDream) : 'رفيق الدرب',
+        album: 'ذاكر مع تقى'
+      });
+      navigator.mediaSession.playbackState = 'playing';
+    } else {
+      navigator.mediaSession.playbackState = finished ? 'none' : 'paused';
+      if (finished) navigator.mediaSession.metadata = null;
+    }
+  } catch(e) {}
+}
+if (mediaOn) {
+  try {
+    navigator.mediaSession.setActionHandler('pause', function() { if (running) $('startBtn').click(); });
+    navigator.mediaSession.setActionHandler('play', function() { if (!running && !finished && tasks.length > 0) $('startBtn').click(); });
+  } catch(e) {}
+}
+document.addEventListener('pointerdown', function() {
+  if (running && ambient !== 'off' && ambNodes.length === 0) { startAmbient(); lastMediaBucket = null; updateMedia(); }
+});
 
 var wakeOn = read('keep-screen.v1', true);
 var wakeLock = null;
@@ -880,6 +986,7 @@ setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 200
 applyGender();
 applyMode();
 applySound();
+applyAmbient();
 applyWake();
 var savedRun = read('timer-run.v1', null);
 if (savedRun && savedRun.endAt) {
@@ -889,6 +996,7 @@ if (savedRun && savedRun.endAt) {
     remaining = left; endAt = savedRun.endAt; running = true; finished = false;
     timerId = setInterval(tick, 500);
     syncWakeLock();
+    lastMediaBucket = null; updateMedia();
   } else {
     remaining = 0; running = false; finished = true;
     store('timer-run.v1', null);
@@ -961,4 +1069,4 @@ $('splash').addEventListener('click', hideSplash);
 })();
 </script>
 </body>
-  </html>
+</html>
