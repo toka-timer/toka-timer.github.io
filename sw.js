@@ -1,6 +1,6 @@
 // مؤقّت المذاكرة التحفيزي - service worker
 // IMPORTANT: bump this version on every app update so users get the new files.
-var CACHE_NAME = 'toka-timer-v1';
+var CACHE_NAME = 'toka-timer-v2';
 var ASSETS = [
   './',
   './index.html',
