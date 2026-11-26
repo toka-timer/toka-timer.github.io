@@ -14,8 +14,8 @@
 <style>
   :root { --ink:#251f21; --ink2:#585254; --hair:#eae9ea; --teal:#73a89a; --page:#ffffff; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background:#f4efec; color:var(--ink); font-family:system-ui,'Segoe UI',sans-serif; display:flex; justify-content:center; }
-  main { background:var(--page); width:100%; max-width:680px; min-height:100vh; padding:24px 20px 110px; }
+  body { background:#f4efec; color:var(--ink); font-family:system-ui,'Segoe UI',sans-serif; }
+  main { background:var(--page); width:100%; max-width:940px; margin:0 auto; min-height:100vh; padding:24px clamp(16px, 4vw, 44px) 110px; }
   h1 { font-size:26px; font-weight:700; margin-bottom:6px; }
   .fact { color:var(--teal); font-weight:600; font-size:14px; margin-bottom:10px; }
   .intro { color:var(--ink2); font-size:14px; line-height:1.9; margin-bottom:20px; }
@@ -80,6 +80,16 @@
   .barval { font-size:11px; color:var(--ink2); margin-bottom:4px; min-height:14px; }
   .chartlbl { display:flex; gap:6px; padding:6px 2px 0; }
   .chartlbl span { flex:1; text-align:center; font-size:11px; color:var(--ink2); min-width:0; overflow:hidden; }
+  #celebration { position:fixed; inset:0; z-index:200; pointer-events:none; overflow:hidden; }
+  .balloon { position:absolute; bottom:-90px; width:44px; height:56px; border-radius:50% 50% 50% 50%/58% 58% 42% 42%; animation:floatup 3.6s ease-in forwards; box-shadow:inset -6px -6px 0 rgba(0,0,0,.08); }
+  .balloon::before { content:''; position:absolute; bottom:-7px; right:50%; transform:translateX(50%); border:5px solid transparent; border-top:8px solid inherit; }
+  .balloon::after { content:''; position:absolute; bottom:-34px; right:50%; width:1.5px; height:28px; background:rgba(0,0,0,.25); }
+  @keyframes floatup { 0% { transform:translateY(0) translateX(0) rotate(0deg); opacity:1; } 85% { opacity:1; } 100% { transform:translateY(-110vh) translateX(30px) rotate(8deg); opacity:0; } }
+  .clap { position:absolute; font-size:30px; animation:clappop 1.6s ease-out forwards; }
+  @keyframes clappop { 0% { transform:scale(.3); opacity:0; } 25% { transform:scale(1.15); opacity:1; } 100% { transform:scale(1) translateY(-40px); opacity:0; } }
+  #celebrateMsg { position:fixed; top:38%; right:0; left:0; z-index:201; text-align:center; font-size:24px; font-weight:800; color:var(--ink); background:rgba(255,255,255,.94); margin:0 auto; max-width:340px; padding:18px 22px; border-radius:18px; box-shadow:0 8px 30px rgba(0,0,0,.18); animation:msgpop 3s ease forwards; }
+  body.dark #celebrateMsg { background:rgba(32,28,38,.95); color:var(--ink); }
+  @keyframes msgpop { 0% { transform:scale(.5); opacity:0; } 12% { transform:scale(1.05); opacity:1; } 80% { opacity:1; } 100% { opacity:0; } }
   .tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--hair); z-index:50; }
   .tabbtn { flex:1; padding:14px 0 16px; background:none; border:none; font-size:15px; font-weight:600; color:var(--ink2); }
   .tabbtn.sel { color:var(--teal); box-shadow:inset 0 3px 0 var(--teal); }
@@ -176,7 +186,9 @@
     <h2>الإشعارات</h2>
     <button class="outline" id="notifBtn">فعّل إشعار نهاية الوقت</button>
     <p class="cap" id="notifMsg"></p>
-    <span class="lbl">التحديثات</span>
+    <span class="lbl">الصوت</span>
+    <button class="outline" id="sndBtn">صوت الاحتفال: شغال 🎈</button>
+    <span class="lbl" style="margin-top:10px">التحديثات</span>
     <button class="outline" id="updBtn">دوّر على تحديث</button>
     <p class="cap" id="updMsg"></p>
   </section>
@@ -209,7 +221,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٠</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١١</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -280,7 +292,6 @@
 </div>
 
 </div>
-</main>
 
 <div id="tabReview" style="display:none">
   <h1>المراجعة</h1>
@@ -295,6 +306,7 @@
     <div class="note" id="trendMsg"></div>
   </section>
 </div>
+</main>
 
 <nav class="tabbar">
   <button class="tabbtn" id="tabBtnSetup">الإعداد ⚙️</button>
@@ -453,7 +465,13 @@ function renderTasks() {
   var dels = list.querySelectorAll('button[data-i]');
   for (var i = 0; i < dels.length; i++) dels[i].onclick = function() { tasks.splice(+this.dataset.i, 1); store('session-tasks.v1', tasks); render(); };
   var togs = list.querySelectorAll('button[data-c]');
-  for (var j = 0; j < togs.length; j++) togs[j].onclick = function() { var k = +this.dataset.c; tasks[k].done = !tasks[k].done; store('session-tasks.v1', tasks); render(); };
+  for (var j = 0; j < togs.length; j++) togs[j].onclick = function() {
+    var k = +this.dataset.c;
+    tasks[k].done = !tasks[k].done;
+    store('session-tasks.v1', tasks);
+    if (tasks[k].done && tasks.length > 0 && tasks.every(function(t){ return t.done; })) celebrate();
+    render();
+  };
 }
 
 function renderWho() {
@@ -675,6 +693,59 @@ $('notifBtn').onclick = function() {
   } catch(e) { $('notifMsg').textContent = 'الإشعارات مش متاحة من المتصفح ده.'; }
 };
 
+var soundOn = read('sound-enabled.v1', true);
+function applySound() { $('sndBtn').textContent = soundOn ? 'صوت الاحتفال: شغال 🎈' : 'صوت الاحتفال: ميوت 🔕'; }
+$('sndBtn').onclick = function() { soundOn = !soundOn; store('sound-enabled.v1', soundOn); applySound(); };
+
+function applause() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var dur = 0.06, total = 2.6;
+    for (var t = 0; t < total; t += 0.06 + Math.random() * 0.09) {
+      var len = ctx.sampleRate * dur;
+      var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900 + Math.random() * 1400; bp.Q.value = 1.2;
+      var g = ctx.createGain(); g.gain.value = 0.25 + Math.random() * 0.2;
+      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.start(ctx.currentTime + t);
+    }
+    setTimeout(function(){ ctx.close(); }, 4000);
+  } catch(e) {}
+}
+
+function celebrate() {
+  var layer = document.createElement('div');
+  layer.id = 'celebration';
+  var colors = ['#e9c46a','#c2708e','#73a89a','#e8a0b4','#4a5f8a','#8e4470','#2b6a5f','#f4a261'];
+  for (var i = 0; i < 14; i++) {
+    var b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.right = (4 + Math.random() * 88) + '%';
+    b.style.background = colors[i % colors.length];
+    b.style.animationDelay = (Math.random() * 0.9) + 's';
+    layer.appendChild(b);
+  }
+  for (var j = 0; j < 6; j++) {
+    var c = document.createElement('div');
+    c.className = 'clap';
+    c.textContent = '👏';
+    c.style.right = (12 + Math.random() * 70) + '%';
+    c.style.top = (30 + Math.random() * 40) + '%';
+    c.style.animationDelay = (0.2 + Math.random() * 1.2) + 's';
+    layer.appendChild(c);
+  }
+  var msg = document.createElement('div');
+  msg.id = 'celebrateMsg';
+  msg.textContent = userGender === 'f' ? 'برافو عليكي! خلصت كل مهامك 🎉' : 'برافو عليك! خلصت كل مهامك 🎉';
+  layer.appendChild(msg);
+  document.body.appendChild(layer);
+  if (soundOn) applause();
+  setTimeout(function(){ layer.remove(); }, 5000);
+}
+
 var oStep = 0;
 function openOnboarding(step) {
   oStep = step;
@@ -751,6 +822,7 @@ $('startHint').onclick = function() { showTab('setup'); };
 setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 20000);
 applyGender();
 applyMode();
+applySound();
 var savedRun = read('timer-run.v1', null);
 if (savedRun && savedRun.endAt) {
   minutes = savedRun.minutes || minutes;
@@ -830,4 +902,4 @@ $('splash').addEventListener('click', hideSplash);
 })();
 </script>
 </body>
-  </html>
+</html>
