@@ -199,6 +199,8 @@
     <span class="lbl" style="margin-top:10px">التحديثات</span>
     <button class="outline" id="updBtn">دوّر على تحديث</button>
     <p class="cap" id="updMsg"></p>
+    <a class="outline" id="updDetails" href="https://t.me/+F166KQqr9IU1YjVk" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:8px">تفاصيل التحديثات</a>
+    <p class="cap">جروب تيليجرام فيه تفاصيل كل تحديث أول بأول. فتحه محتاج نت.</p>
   </section>
 
   <section>
@@ -236,7 +238,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٥</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٦</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -716,7 +718,7 @@ var soundOn = read('sound-enabled.v1', true);
 function applySound() { $('sndBtn').textContent = soundOn ? 'صوت الاحتفال: شغال 🎈' : 'صوت الاحتفال: ميوت 🔕'; }
 $('sndBtn').onclick = function() { soundOn = !soundOn; store('sound-enabled.v1', soundOn); applySound(); };
 
-var AMBIENTS = [ {v:'off', l:'من غير صوت'}, {v:'rain', l:'مطر 🌧️'}, {v:'noise', l:'ضوضاء هادية 🤍'} ];
+var AMBIENTS = [ {v:'off', l:'من غير صوت'}, {v:'rain', l:'مطر 🌧️'} ];
 var ambient = read('timer-ambient.v1', 'off');
 if (!AMBIENTS.some(function(a){ return a.v === ambient; })) ambient = 'off';
 var ambVol = read('timer-ambient-vol.v1', 0.3);
@@ -733,81 +735,38 @@ function stopAmbient() {
     }, 450);
   } catch(e) {}
 }
-function bakeAmbientBuffer(ctx, kind) {
-  var sr = ctx.sampleRate, secs = 22, len = sr * secs;
-  var buf = ctx.createBuffer(2, len, sr);
-  for (var ch = 0; ch < 2; ch++) {
-    var d = buf.getChannelData(ch);
-    var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, i;
-    for (i = 0; i < len; i++) {
-      var w = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + w * 0.0555179;
-      b1 = 0.99332 * b1 + w * 0.0750759;
-      b2 = 0.96900 * b2 + w * 0.1538520;
-      b3 = 0.86650 * b3 + w * 0.3104856;
-      b4 = 0.55000 * b4 + w * 0.5329522;
-      b5 = -0.7616 * b5 - w * 0.0168980;
-      d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
-      b6 = w * 0.115926;
-    }
-    if (kind === 'noise') {
-      var lp = 0;
-      for (i = 0; i < len; i++) {
-        lp += 0.045 * (d[i] - lp);
-        d[i] = lp * 2.4 * (0.82 + 0.18 * Math.sin(2 * Math.PI * 0.055 * i / sr + ch * 2));
-      }
-    } else {
-      var rumble = 0, wash = 0;
-      for (i = 0; i < len; i++) {
-        rumble += 0.018 * (d[i] - rumble);
-        wash += 0.16 * (d[i] - wash);
-        d[i] = rumble * 3.2 + (wash - rumble) * 0.85;
-      }
-      var nDrops = secs * 3;
-      for (var k = 0; k < nDrops; k++) {
-        var pos = Math.floor(Math.random() * (len - 2000));
-        var dur = Math.floor(sr * (0.004 + Math.random() * 0.011));
-        var f = 2200 + Math.random() * 2400;
-        var dg = 0.05 + Math.random() * 0.09;
-        var ph = Math.random() * 6.28;
-        for (var j = 0; j < dur; j++) {
-          ph += 2 * Math.PI * f / sr;
-          d[pos + j] += Math.sin(ph) * Math.exp(-j / (dur * 0.3)) * dg;
-        }
-      }
-      for (i = 0; i < len; i++) d[i] *= (0.86 + 0.14 * Math.sin(2 * Math.PI * 0.045 * i / sr + ch * 2.5));
-    }
-    var xf = Math.floor(sr * 0.75);
-    for (i = 0; i < xf; i++) { var m = i / xf; d[i] = d[i] * m + d[len - xf + i] * (1 - m); }
-  }
-  var peak = 0;
-  for (var c2 = 0; c2 < 2; c2++) {
-    var dd = buf.getChannelData(c2);
-    for (var p = 0; p < len; p += 7) { var ax = Math.abs(dd[p]); if (ax > peak) peak = ax; }
-  }
-  if (peak > 0) {
-    var scale = 0.7 / peak;
-    if (scale < 1) for (var c3 = 0; c3 < 2; c3++) {
-      var d3 = buf.getChannelData(c3);
-      for (var q = 0; q < len; q++) d3[q] *= scale;
-    }
-  }
-  return buf;
-}
 function startAmbient() {
-  if (ambient === 'off') return;
+  if (ambient !== 'rain') return;
   try {
     if (!ambCtx) ambCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (ambCtx.state === 'suspended') ambCtx.resume();
     stopAmbient();
     var g = ambCtx.createGain(); g.gain.value = 0;
-    var srcN = ambCtx.createBufferSource();
-    srcN.buffer = ambBufs[ambient] || (ambBufs[ambient] = bakeAmbientBuffer(ambCtx, ambient));
-    srcN.loop = true;
-    srcN.connect(g); g.connect(ambCtx.destination);
-    srcN.start();
-    g.gain.setTargetAtTime(ambVol * 0.65, ambCtx.currentTime, 0.9);
-    ambNodes = [srcN, g];
+    g.connect(ambCtx.destination);
+    ambNodes = [g];
+    var playBuf = function(buf) {
+      try {
+        if (!running || ambient !== 'rain' || ambNodes.indexOf(g) === -1) return;
+        var srcN = ambCtx.createBufferSource();
+        srcN.buffer = buf; srcN.loop = true;
+        srcN.connect(g);
+        srcN.start();
+        g.gain.setTargetAtTime(ambVol * 0.65, ambCtx.currentTime, 0.9);
+        ambNodes = [srcN, g];
+      } catch(e) {}
+    };
+    if (ambBufs.rain) { playBuf(ambBufs.rain); return; }
+    var fetches = [];
+    for (var i = 0; i < 3; i++) fetches.push(fetch('rain.p' + i).then(function(r){ if (!r.ok) throw new Error('net'); return r.text(); }));
+    Promise.all(fetches).then(function(txts) {
+      var bin = atob(txts.join('').replace(/\s+/g, ''));
+      var bytes = new Uint8Array(bin.length);
+      for (var j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
+      return ambCtx.decodeAudioData(bytes.buffer);
+    }).then(function(buf) {
+      ambBufs.rain = buf;
+      playBuf(buf);
+    }).catch(function() { stopAmbient(); });
   } catch(e) {}
 }
 function applyAmbient() {
@@ -815,8 +774,8 @@ function applyAmbient() {
   $('ambVol').style.display = ambient === 'off' ? 'none' : 'block';
   $('ambVol').value = Math.round(ambVol * 100);
   $('ambMsg').textContent = ambient === 'off'
-    ? 'لو فعّلت صوت، هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي تشوفه من شريط الإشعارات من غير ما تفتح التطبيق.'
-    : 'الصوت هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي في شريط الإشعارات. لو اخترت "من غير صوت" الإشعار ده مش بيظهر.';
+    ? 'لو فعّلت المطر، هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي تشوفه من شريط الإشعارات من غير ما تفتح التطبيق. تسجيل مطر حقيقي بيشتغل من غير نت.'
+    : 'مطر حقيقي هيشتغل لوحده مع بداية الجلسة، وهيظهر إشعار فيه الوقت المتبقي في شريط الإشعارات. لو اخترت "من غير صوت" الإشعار ده مش بيظهر.';
 }
 makeChips('ambChips', AMBIENTS, function(v) {
   ambient = v; store('timer-ambient.v1', ambient); applyAmbient();
