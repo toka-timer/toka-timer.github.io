@@ -246,7 +246,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢٠</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢١</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -258,6 +258,7 @@
         <svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,150 Q100,128 200,140 T400,132 L400,210 L0,210 Z" fill="rgba(0,0,0,.22)"/>
           <line x1="0" y1="178" x2="400" y2="178" stroke="rgba(255,255,255,.85)" stroke-width="4" stroke-dasharray="20 20" class="road-dash"/>
+          <g id="terrain"></g>
           <g id="goalGroup">
             <line x1="34" y1="150" x2="34" y2="96" stroke="#fff" stroke-width="4"/>
             <path d="M34,96 L74,106 L34,118 Z" fill="#e9c46a"/>
@@ -548,7 +549,11 @@ function render() {
     var frac = minutes > 0 ? Math.min(1, Math.max(0, 1 - remaining / (minutes * 60))) : 0;
     if (finished) frac = 1;
     var x = 340 - frac * 280;
-    $('runnerGroup').setAttribute('transform', 'translate(' + x + ',120)');
+    var th = terrainH(x);
+    $('runnerGroup').setAttribute('transform', 'translate(' + x + ',' + (120 - th).toFixed(1) + ')');
+    var gh = terrainH(34);
+    $('goalGroup').setAttribute('transform', 'translate(0,' + (-gh).toFixed(1) + ')');
+    $('dreamLabel').setAttribute('transform', 'translate(0,' + gh.toFixed(1) + ')');
     var fig = userGender === 'f' ? 'figGirl' : (userGender === 'm' ? 'figBoy' : 'figNeut');
     ['figGirl','figBoy','figNeut'].forEach(function(id){ $(id).classList.toggle('fig-show', id === fig); });
     $('dreamLabel').textContent = userDream || 'حلمك';
@@ -675,6 +680,37 @@ function logSession(mins, partial) {
   sessions.push({ d: todayKey(), mins: mins, partial: !!partial });
   sessions = sessions.slice(-50);
   store('study-log.v1', sessions);
+}
+
+
+/* ---- road staircase (v21): 7 treads, start on the first (bottom), dream on the last (top). SVG only, built once ---- */
+var STAIR = { base: 148, n: 7, tread: 44, rise: 10, x0: 350, end: 14 };
+function smooth01(t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }
+function terrainH(x) {
+  var h = 0, k;
+  for (k = 1; k < STAIR.n; k++) h += STAIR.rise * smooth01((STAIR.x0 - STAIR.tread * k - x) / 9 + 0.5);
+  return h;
+}
+function buildTerrain() {
+  var g = $('terrain'); if (!g) return;
+  var y = function(k) { return STAIR.base - STAIR.rise * k; };
+  var top = 'M' + STAIR.x0 + ',' + y(0), k, xr;
+  for (k = 1; k < STAIR.n; k++) {
+    xr = STAIR.x0 - STAIR.tread * k;
+    top += ' L' + xr + ',' + y(k - 1) + ' L' + xr + ',' + y(k);
+  }
+  top += ' L' + STAIR.end + ',' + y(STAIR.n - 1);
+  var tread0 = 'M400,' + y(0) + ' L' + STAIR.x0 + ',' + y(0) + top.slice(top.indexOf(' L'));
+  var fill = tread0 + ' L' + STAIR.end + ',210 L400,210 Z';
+  var svg = '<path d="' + fill + '" fill="rgba(0,0,0,.30)"/>';
+  var lines = 'M400,' + y(0) + ' L' + STAIR.x0 + ',' + y(0) + top.slice(top.indexOf(' L'));
+  svg += '<path d="' + lines + '" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linejoin="round"/>';
+  // faint riser shading lines so each step reads as a step
+  for (k = 1; k < STAIR.n; k++) {
+    xr = STAIR.x0 - STAIR.tread * k;
+    svg += '<line x1="' + xr + '" y1="' + y(k) + '" x2="' + xr + '" y2="210" stroke="rgba(255,255,255,.18)" stroke-width="1"/>';
+  }
+  g.innerHTML = svg;
 }
 
 var STREAK_STYLES = {
@@ -1067,6 +1103,7 @@ $('startHint').onclick = function() { showTab('setup'); };
 
 setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 20000);
 try {
+try { buildTerrain(); } catch(terrErr) {}
 applyGender();
 applyMode();
 applySound();
