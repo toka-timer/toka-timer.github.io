@@ -15,7 +15,7 @@
   :root { --ink:#251f21; --ink2:#585254; --hair:#eae9ea; --teal:#73a89a; --page:#ffffff; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background:#f4efec; color:var(--ink); font-family:system-ui,'Segoe UI',sans-serif; display:flex; justify-content:center; }
-  main { background:var(--page); width:100%; max-width:680px; min-height:100vh; padding:24px 20px 48px; }
+  main { background:var(--page); width:100%; max-width:680px; min-height:100vh; padding:24px 20px 110px; }
   h1 { font-size:26px; font-weight:700; margin-bottom:6px; }
   .fact { color:var(--teal); font-weight:600; font-size:14px; margin-bottom:10px; }
   .intro { color:var(--ink2); font-size:14px; line-height:1.9; margin-bottom:20px; }
@@ -60,18 +60,36 @@
   .taskadd button { border:none; border-radius:10px; background:var(--teal); color:#fff; padding:0 18px; font-size:15px; font-weight:600; }
   .taskrow { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--hair); font-size:14px; }
   .taskrow button { background:none; border:none; color:var(--ink2); font-size:18px; padding:4px 8px; }
-  @media (min-width:768px) { .clock { font-size:96px; } .inner { min-height:440px; } main { padding:36px 32px 56px; } }
+  .tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--hair); z-index:50; }
+  .tabbtn { flex:1; padding:14px 0 16px; background:none; border:none; font-size:15px; font-weight:600; color:var(--ink2); }
+  .tabbtn.sel { color:var(--teal); box-shadow:inset 0 3px 0 var(--teal); }
+  .deco { font-size:22px; letter-spacing:14px; opacity:.92; min-height:8px; }
+  .goTimer { display:block; width:100%; border:none; border-radius:999px; background:var(--teal); color:#fff; padding:15px; font-size:16px; font-weight:700; margin-bottom:28px; }
+  .gendrow { display:flex; gap:10px; }
+  .gendrow .obtn { margin:0; }
+  #startHint { cursor:pointer; }
+  body.g-f { --teal:#c2708e; }
+  body.g-f main { background:#fff7f9; }
+  body.g-m { --teal:#3d5a80; }
+  body.g-m main { background:#f6f8fc; }
+  @media (min-width:768px) { .clock { font-size:96px; } .inner { min-height:440px; } main { padding:36px 32px 120px; } }
 </style>
 </head>
 <body>
 <main>
+<div id="tabSetup">
   <h1>مؤقّت المذاكرة التحفيزي</h1>
   <p class="fact">حدّد وقتك وابدأ</p>
   <p class="intro">تايمر بسيط للمذاكرة: بتختار الوقت والخلفية والخط، بيشجعك باقتباسات، بيسجّل دقايق مذاكرتك، وبتقيّم يومك في الآخر. بيشتغل من غير نت بعد أول تحميل.</p>
 
   <section id="whoSection" style="display:none">
     <p class="total" id="greeting"></p>
-    <button class="ghost" id="editWho">تغيير الاسم والحلم</button>
+    <button class="ghost" id="editWho">تغيير الاسم والحلم والنمط</button>
+  </section>
+
+  <section>
+    <h2>التعليمات</h2>
+    <div class="note"><b>إزاي بيشتغل التايمر</b>التايمر بيعدّ طول ما التطبيق مفتوح، فسيبيه مفتوح أثناء الجلسة. لو قفلت التطبيق أو قفلت الشاشة في نص الجلسة، الوقت بيقف والجلسة مش بتتحسب في السجل. الوقف المؤقت مجاني ومش بيخصم حاجة، ولو أنهيت بدري من زرار "إنهاء بدري" بيتحسبلك ربع الوقت اللي ذاكرته بس. لما الوقت يخلص للآخر، الجلسة كاملة بتتسجّل.</div>
   </section>
 
   <section>
@@ -83,20 +101,6 @@
     <div id="taskList"></div>
     <p class="cap">لازم ضيف مهمة واحدة على الأقل قبل ما تبدأ التايمر.</p>
   </section>
-
-  <div class="panel" id="panel">
-    <div class="inner">
-      <div class="clock" id="clock">25:00</div>
-      <p class="quote" id="quote"></p>
-      <div class="controls">
-        <button class="btn btn-primary" id="startBtn">ابدأ</button>
-        <button class="btn btn-secondary" id="earlyBtn" style="display:none">إنهاء بدري</button>
-        <button class="btn btn-secondary" id="resetBtn">من الأول</button>
-        <button class="btn btn-secondary" id="quoteBtn">اقتباس جديد</button>
-      </div>
-      <p class="hint" id="startHint" style="display:none">ضيف مهمة للجلسة الأول عشان تبدأ.</p>
-    </div>
-  </div>
 
   <section>
     <h2>الوقت</h2>
@@ -139,7 +143,33 @@
   <div class="note"><b>خصوصيتك</b>كل حاجة بتتسجّل على جهازك بس: الاسم، الحلم، الوقت، الشكل، المهام، السجل وتقييم اليوم. مفيش حساب ومفيش حاجة بتتبعت لأي حد، ولو مسحت بيانات المتصفح بتتمسح.</div>
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
+  <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
+</div>
+
+<div id="tabTimer" style="display:none">
+  <div class="panel" id="panel">
+    <div class="inner">
+      <div class="deco" id="deco"></div>
+      <div class="clock" id="clock">25:00</div>
+      <p class="quote" id="quote"></p>
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">ابدأ</button>
+        <button class="btn btn-secondary" id="earlyBtn" style="display:none">إنهاء بدري</button>
+        <button class="btn btn-secondary" id="resetBtn">من الأول</button>
+        <button class="btn btn-secondary" id="quoteBtn">اقتباس جديد</button>
+      </div>
+      <p class="hint" id="startHint" style="display:none">ضيف مهمة من تبويب الإعداد الأول عشان تبدأ (اضغط هنا).</p>
+    </div>
+  </div>
+</div>
+
+</div>
 </main>
+
+<nav class="tabbar">
+  <button class="tabbtn" id="tabBtnSetup">الإعداد ⚙️</button>
+  <button class="tabbtn" id="tabBtnTimer">التايمر ⏱️</button>
+</nav>
 
 <div class="overlay" id="overlay" style="display:none">
   <div class="ocard">
@@ -147,6 +177,10 @@
     <p id="oText"></p>
     <input class="field" id="oInput" type="text" maxlength="40">
     <button class="obtn" id="oBtn">كمّل</button>
+    <div class="gendrow" id="oGender" style="display:none">
+      <button class="obtn" id="oGirl">بنت 🌸</button>
+      <button class="obtn" id="oBoy">ولد ⭐</button>
+    </div>
   </div>
 </div>
 
@@ -183,7 +217,8 @@ var QUOTES = [
 
 var THEMES = [
   { v:'dawn', l:'فجر' }, { v:'night', l:'ليل' }, { v:'road', l:'طريق' },
-  { v:'peak', l:'قمة' }, { v:'teal', l:'تركوازي' }, { v:'plum', l:'موف' }
+  { v:'peak', l:'قمة' }, { v:'teal', l:'تركوازي' }, { v:'plum', l:'موف' },
+  { v:'rose', l:'وردي' }, { v:'navy', l:'كحلي' }
 ];
 var FONTS = [
   { v:'default', l:'أساسي' }, { v:'serif', l:'كلاسيكي' }, { v:'system', l:'بسيط' }, { v:'mono', l:'أرقام واضحة' }
@@ -198,6 +233,7 @@ function formatDay(key) { var p = key.split('-'); return new Date(+p[0], +p[1]-1
 function fmt(t) { return String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0'); }
 
 var userName = read('user-name.v1', '');
+var userGender = read('user-gender.v1', '');
 var userDream = read('user-dream.v1', '');
 var minutes = read('timer-minutes.v1', 25);
 var theme = read('timer-theme.v1', 'dawn');
@@ -221,6 +257,8 @@ function themeBackground() {
   var p = $('panel');
   if (IMGS[theme]) p.style.backgroundImage = 'linear-gradient(rgba(15,12,25,.30), rgba(15,12,25,.45)), url(' + IMGS[theme] + ')';
   else if (theme === 'teal') p.style.backgroundImage = 'linear-gradient(160deg, #1d4f47 0%, #73a89a 60%, #2b6a5f 100%)';
+  else if (theme === 'rose') p.style.backgroundImage = 'linear-gradient(160deg, #8e4470 0%, #c2708e 55%, #e8a0b4 100%)';
+  else if (theme === 'navy') p.style.backgroundImage = 'linear-gradient(160deg, #16213e 0%, #2b3a55 55%, #4a5f8a 100%)';
   else p.style.backgroundImage = 'linear-gradient(160deg, #3a2440 0%, #7a4a6e 55%, #4a2c52 100%)';
 }
 
@@ -248,9 +286,20 @@ function renderWho() {
   $('whoSection').style.display = has ? 'block' : 'none';
   if (has) {
     var g = userName ? 'أهلًا يا ' + userName : 'أهلًا';
-    if (userDream) g += ' 🤍 ' + userDream + ' مستنيك.';
+    if (userDream) {
+      var mark = userGender === 'f' ? ' 🎀 ' : (userGender === 'm' ? ' ⭐ ' : ' 🤍 ');
+      g += mark + userDream + (userGender === 'f' ? ' مستنياكي.' : ' مستنيك.');
+    }
     $('greeting').textContent = g;
   }
+}
+
+function applyGender() {
+  document.body.classList.toggle('g-f', userGender === 'f');
+  document.body.classList.toggle('g-m', userGender === 'm');
+  if (userGender === 'f' && theme === 'dawn') { theme = 'rose'; store('timer-theme.v1', theme); }
+  if (userGender === 'm' && theme === 'dawn') { theme = 'navy'; store('timer-theme.v1', theme); }
+  $('deco').textContent = userGender === 'f' ? '🎀  🌸  🌙' : (userGender === 'm' ? '⭐  ⚡  🏔️' : '');
 }
 
 function render() {
@@ -263,6 +312,7 @@ function render() {
   $('startHint').style.display = tasks.length === 0 && !midSession ? 'block' : 'none';
   $('quote').textContent = currentQuote();
   themeBackground();
+  $('deco').textContent = userGender === 'f' ? '🎀  🌸  🌙' : (userGender === 'm' ? '⭐  ⚡  🏔️' : '');
   $('panel').className = 'panel' + (font === 'default' ? '' : ' f-' + font);
   markChips('presets', String(minutes));
   markChips('themes', theme);
@@ -377,19 +427,26 @@ var oStep = 0;
 function openOnboarding(step) {
   oStep = step;
   $('overlay').style.display = 'flex';
+  var pick = step === 3;
+  $('oInput').style.display = pick ? 'none' : 'block';
+  $('oBtn').style.display = pick ? 'none' : 'block';
+  $('oGender').style.display = pick ? 'flex' : 'none';
   if (step === 1) {
     $('oTitle').textContent = 'أهلًا بيك 👋';
     $('oText').textContent = 'أول خطوة: اكتب اسمك، عشان التايمر يناديك بيه.';
     $('oInput').value = userName || '';
     $('oInput').placeholder = 'اسمك';
-  } else {
+  } else if (step === 2) {
     $('oTitle').textContent = 'إيه حلمك؟';
     $('oText').textContent = 'اكتب وظيفة أو هدف أحلامك، والاقتباسات هتفكّرك بيه وانت بتذاكر.';
     $('oInput').value = userDream || '';
-    $('oInput').placeholder = 'مثلًا: دكتور، مهندس، مبرمج';
+    $('oInput').placeholder = 'مثلًا: دكتور، مهندسة، مبرمج';
+  } else {
+    $('oTitle').textContent = 'آخر خطوة: النمط';
+    $('oText').textContent = 'اختار نمط التطبيق: الألوان والشكل هيتظبطوا على اختيارك، وتقدر تغيّرهم في أي وقت من الإعداد.';
   }
   $('oBtn').textContent = step === 1 ? 'كمّل' : 'يلا نبدأ';
-  setTimeout(function(){ $('oInput').focus(); }, 50);
+  if (!pick) setTimeout(function(){ $('oInput').focus(); }, 50);
 }
 $('oBtn').onclick = function() {
   var v = $('oInput').value.trim();
@@ -400,15 +457,38 @@ $('oBtn').onclick = function() {
   } else {
     if (!v) return;
     userDream = v; store('user-dream.v1', userDream);
-    $('overlay').style.display = 'none';
-    render();
+    openOnboarding(3);
   }
 };
+function pickGender(g) {
+  userGender = g; store('user-gender.v1', userGender);
+  $('overlay').style.display = 'none';
+  applyGender();
+  render();
+}
+$('oGirl').onclick = function() { pickGender('f'); };
+$('oBoy').onclick = function() { pickGender('m'); };
 $('oInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('oBtn').click(); });
 $('editWho').onclick = function() { openOnboarding(1); };
 
+var activeTab = read('active-tab.v1', '');
+function showTab(t) {
+  activeTab = t; store('active-tab.v1', t);
+  $('tabSetup').style.display = t === 'setup' ? 'block' : 'none';
+  $('tabTimer').style.display = t === 'timer' ? 'block' : 'none';
+  $('tabBtnSetup').classList.toggle('sel', t === 'setup');
+  $('tabBtnTimer').classList.toggle('sel', t === 'timer');
+}
+$('tabBtnSetup').onclick = function() { showTab('setup'); };
+$('tabBtnTimer').onclick = function() { showTab('timer'); };
+$('goTimer').onclick = function() { showTab('timer'); window.scrollTo(0,0); };
+$('startHint').onclick = function() { showTab('setup'); };
+
 setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 45000);
+applyGender();
 if (!userName) openOnboarding(1);
+else if (!userGender) openOnboarding(3);
+showTab(activeTab === 'setup' || activeTab === 'timer' ? activeTab : (tasks.length ? 'timer' : 'setup'));
 render();
 </script>
 
