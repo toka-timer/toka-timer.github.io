@@ -1,32 +1,40 @@
 // مؤقّت المذاكرة التحفيزي - service worker
 // IMPORTANT: bump this version on every app update so users get the new files.
-var CACHE_NAME = 'toka-timer-v19';
+var CACHE_NAME = 'toka-timer-v20';
 var CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 var EXTRA = [
   './ypt1.p0','./ypt1.p1','./ypt1.p2','./ypt1.p3','./ypt1.p4','./ypt1.p5',
   './ypt2.p0','./ypt2.p1',
   './rain.p0','./rain.p1','./rain.p2'];
 
+// fetch with a hard ceiling so a hung request can never stall the install
+function timeoutFetch(u, ms){
+  return Promise.race([
+    fetch(u, { cache: 'reload' }),
+    new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('timeout ' + u)); }, ms); })
+  ]);
+}
+
 self.addEventListener('install', function(e){
   // activate immediately: never leave an update stuck in "waiting" behind an old page
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(c){
-      // core must all cache or install fails and retries later;
-      // cache:'reload' bypasses any stale/corrupt HTTP cache entry (matches the pre-v17 pattern that worked on all devices)
-      return Promise.all(CORE.map(function(u){
-        return fetch(u, { cache: 'reload' }).then(function(r){
+      // core (4 small files) must all cache or install fails and retries later;
+      // cache:'reload' bypasses any stale/corrupt HTTP cache entry
+      var core = Promise.all(CORE.map(function(u){
+        return timeoutFetch(u, 30000).then(function(r){
           if (!r.ok) throw new Error('core fetch failed: ' + u);
           return c.put(u, r);
         });
-      })).then(function(){
-        // extra media: cache each on its own; a failed one never blocks install
-        return Promise.all(EXTRA.map(function(u){
-          return fetch(u, { cache: 'reload' }).then(function(r){
-            if (r.ok) return c.put(u, r);
-          }).catch(function(){ return null; });
-        }));
-      });
+      }));
+      // extra media: each on its own, capped at 15s; a slow or failed one never blocks install
+      var extra = Promise.all(EXTRA.map(function(u){
+        return timeoutFetch(u, 15000).then(function(r){
+          if (r && r.ok) return c.put(u, r);
+        }).catch(function(){ return null; });
+      }));
+      return Promise.all([core, extra]);
     })
   );
 });
