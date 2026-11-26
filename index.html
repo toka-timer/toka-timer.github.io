@@ -37,6 +37,7 @@
   .chip.sel { background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600; }
   input[type=range] { width:100%; accent-color:var(--teal); margin:6px 0 4px; }
   .cap { font-size:12px; color:var(--ink2); line-height:1.8; }
+  .ytpv { width:100%; border-radius:12px; display:block; margin:6px 0 14px; background:#000; }
   .note { background:#f4efec; border-radius:12px; padding:14px 16px; font-size:13px; line-height:1.9; color:var(--ink2); }
   .note b { color:var(--ink); display:block; margin-bottom:4px; }
   .total { font-size:15px; font-weight:700; margin-bottom:8px; }
@@ -218,13 +219,20 @@
     <h2>ذاكر معانا 🏁</h2>
     <div class="note"><b>جروب مذاكرة على YPT (من غير دردشة)</b>عايز تذاكر وانت شايف ناس بتذاكر معاك؟ دوس على اللينك تحت وادخل جروبنا على YPT. القواعد بسيطة: ابعت اسمك، اكتب مهامك هنا في رفيق الدرب، شغّل التايمر، ولو حاب تتأكد من نفسك، صوّر مهامك وابعتها. مفيش دردشة خالص. فتح اللينك محتاج نت، بس باقي التطبيق بيشتغل من غير نت عادي.</div>
     <a class="joinbtn" href="https://link.yeolpumta.com/P3R5cGU9Z3JvdXBJbnZpdGUmaWQ9NzYxNzkzMQ==" target="_blank" rel="noopener">ادخل الجروب على YPT ⏱️</a>
+    <span class="lbl" style="margin-top:14px">إزاي تستخدم YPT؟ (الفيديوهات بتشتغل من غير نت)</span>
+    <p class="cap">١) الأساسيات: سجّل موادك ومهامك وابدأ أول جلسة (٥ دقايق ونص)</p>
+    <button class="outline yptload" id="yptb1" data-v="1">شغّل الفيديو ▶</button>
+    <video class="ytpv" id="yptv1" controls playsinline preload="none" style="display:none"></video>
+    <p class="cap">٢) ظبط التطبيقات المسموحة وقت المذاكرة (دقيقة)</p>
+    <button class="outline yptload" id="yptb2" data-v="2">شغّل الفيديو ▶</button>
+    <video class="ytpv" id="yptv2" controls playsinline preload="none" style="display:none"></video>
   </section>
 
   <div class="note"><b>خصوصيتك</b>كل حاجة بتتسجّل على جهازك بس: الاسم، الحلم، الوقت، الشكل، المهام، السجل وتقييم اليوم. مفيش حساب ومفيش حاجة بتتبعت لأي حد، ولو مسحت بيانات المتصفح بتتمسح.</div>
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٢</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ١٣</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -712,6 +720,28 @@ $('wakeBtn').onclick = function() { wakeOn = !wakeOn; store('keep-screen.v1', wa
 function releaseWakeLock() {
   if (wakeLock) { try { wakeLock.release(); } catch(e) {} wakeLock = null; }
 }
+var yptUrls = {};
+function playYpt(which) {
+  var btn = $('yptb' + which), vid = $('yptv' + which);
+  if (yptUrls[which]) { btn.style.display = 'none'; vid.style.display = 'block'; vid.src = yptUrls[which]; vid.play(); return; }
+  btn.disabled = true; btn.textContent = 'بنجهّز الفيديو…';
+  var parts = which === 1 ? 6 : 2;
+  var fetches = [];
+  for (var i = 0; i < parts; i++) fetches.push(fetch('ypt' + which + '.p' + i).then(function(r){ if (!r.ok) throw new Error('net'); return r.text(); }));
+  Promise.all(fetches).then(function(txts) {
+    var bin = atob(txts.join('').replace(/\s+/g, ''));
+    var bytes = new Uint8Array(bin.length);
+    for (var j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
+    yptUrls[which] = URL.createObjectURL(new Blob([bytes], { type: 'video/mp4' }));
+    btn.style.display = 'none'; vid.style.display = 'block';
+    vid.src = yptUrls[which]; vid.play();
+  }).catch(function() {
+    btn.disabled = false; btn.textContent = 'شغّل الفيديو ▶ (محتاج نت أول مرة)';
+  });
+}
+$('yptb1').onclick = function() { playYpt(1); };
+$('yptb2').onclick = function() { playYpt(2); };
+
 function syncWakeLock() {
   if (!wakeOn || !running || document.hidden) { releaseWakeLock(); return; }
   if (!wakeSupported || wakeLock) return;
