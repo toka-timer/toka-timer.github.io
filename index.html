@@ -81,6 +81,19 @@
   body.g-m { --teal:#3d5a80; }
   body.g-m main { background:#f6f8fc; }
   @media (min-width:768px) { .clock { font-size:96px; } .inner { min-height:440px; } main { padding:36px 32px 120px; } }
+  #tabTimer { min-height: calc(100dvh - 150px); }
+  #tabTimer .panel { min-height: calc(100dvh - 150px); margin-bottom:0; display:flex; }
+  #tabTimer .inner { flex:1; width:100%; }
+  #roadScene { width:100%; }
+  #roadScene svg { width:100%; height:auto; display:block; }
+  .fig { display:none; }
+  .road-on .fig-show { display:inline; }
+  @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+  .fig-run { animation: bob .45s ease-in-out infinite alternate; }
+  @keyframes dashmove { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -40; } }
+  .road-dash { animation: dashmove 1.2s linear infinite; }
+  #runnerGroup { transition: transform .6s linear; }
+  .dist { font-size:14px; opacity:.95; text-shadow:0 1px 8px rgba(0,0,0,.5); }
   body.dark.g-f main, body.dark.g-m main { background:var(--page); }
   body.dark .btn-primary { background:#f0ebee; color:#201c26; }
   body.dark .btn-secondary { background:rgba(32,28,38,.88); color:#f0ebee; }
@@ -100,7 +113,7 @@
 
   <section>
     <h2>التعليمات</h2>
-    <div class="note"><b>إزاي بيشتغل التايمر</b>التايمر بيعدّ طول ما التطبيق مفتوح، فسيبيه مفتوح أثناء الجلسة. لو قفلت التطبيق أو قفلت الشاشة في نص الجلسة، الوقت بيقف والجلسة مش بتتحسب في السجل. الوقف المؤقت مجاني ومش بيخصم حاجة، ولو أنهيت بدري من زرار "إنهاء بدري" بيتحسبلك ربع الوقت اللي ذاكرته بس. لما الوقت يخلص للآخر، الجلسة كاملة بتتسجّل.</div>
+    <div class="note"><b>إزاي بيشتغل التايمر</b>التايمر بيعدّ بالساعة الحقيقية، فلو خرجت من التطبيق أو قفلته ورجعت، هتلاقيه مكمّل عدّ صح. لو الوقت خلص وانت برّه، الجلسة بتتسجّل أول ما ترجع. تنبيه النهاية بيشتغل أضمن والتطبيق مفتوح. الوقف المؤقت مجاني ومش بيخصم حاجة، ولو أنهيت بدري من زرار "إنهاء بدري" بيتحسبلك ربع الوقت اللي ذاكرته بس. لما الوقت يخلص للآخر، الجلسة كاملة بتتسجّل.</div>
   </section>
 
   <section>
@@ -128,6 +141,8 @@
     <div class="chips" id="themes"></div>
     <span class="lbl">الخط</span>
     <div class="chips" id="fonts"></div>
+    <span class="lbl">شكل التايمر</span>
+    <div class="chips" id="tstyles"></div>
     <span class="lbl">الإضاءة</span>
     <button class="outline" id="modeBtn">الوضع الليلي 🌙</button>
   </section>
@@ -164,6 +179,56 @@
     <div class="inner">
       <div class="deco" id="deco"></div>
       <div class="clock" id="clock">25:00</div>
+      <div id="roadScene" style="display:none">
+        <svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,150 Q100,128 200,140 T400,132 L400,210 L0,210 Z" fill="rgba(0,0,0,.22)"/>
+          <line x1="0" y1="178" x2="400" y2="178" stroke="rgba(255,255,255,.85)" stroke-width="4" stroke-dasharray="20 20" class="road-dash"/>
+          <g id="goalGroup">
+            <line x1="34" y1="150" x2="34" y2="96" stroke="#fff" stroke-width="4"/>
+            <path d="M34,96 L74,106 L34,118 Z" fill="#e9c46a"/>
+            <text x="34" y="88" font-size="20" text-anchor="middle">⭐</text>
+            <text id="dreamLabel" x="38" y="168" font-size="14" fill="#fff" text-anchor="middle" style="text-shadow:0 1px 6px rgba(0,0,0,.6)"></text>
+          </g>
+          <g id="runnerGroup">
+            <g class="fig fig-run" id="figGirl">
+              <path d="M-9,-38 a10,10 0 0,1 20,0 l1,7 -4,-2 -1,-4 -7,-1 -6,2 -2,5 z" fill="#4a3226"/>
+              <path d="M8,-46 l6,-7 3,7 z M14,-44 l7,-4 -1,8 z" fill="#e8a0b4"/>
+              <circle cx="1" cy="-32" r="10" fill="#ffd9b3"/>
+              <path d="M-8,-22 L10,-22 L15,6 L-13,6 Z" fill="#c2708e"/>
+              <line x1="-6" y1="-18" x2="-16" y2="-6" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="8" y1="-18" x2="16" y2="-9" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="-6" y1="6" x2="-16" y2="24" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <line x1="7" y1="6" x2="12" y2="22" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="-17" cy="26" r="3.4" fill="#fff"/>
+              <circle cx="13" cy="24" r="3.4" fill="#fff"/>
+            </g>
+            <g class="fig fig-run" id="figBoy">
+              <path d="M-9,-36 a10,10 0 0,1 20,0 l0,3 -20,0 z" fill="#2c2c34"/>
+              <circle cx="1" cy="-32" r="10" fill="#ffd9b3"/>
+              <rect x="-8" y="-22" width="18" height="18" rx="5" fill="#3d5a80"/>
+              <line x1="-6" y1="-18" x2="-16" y2="-6" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="8" y1="-18" x2="16" y2="-9" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <rect x="-7" y="-4" width="16" height="10" rx="3" fill="#2b3a55"/>
+              <line x1="-4" y1="6" x2="-16" y2="24" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <line x1="6" y1="6" x2="12" y2="22" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="-17" cy="26" r="3.4" fill="#fff"/>
+              <circle cx="13" cy="24" r="3.4" fill="#fff"/>
+            </g>
+            <g class="fig fig-run" id="figNeut">
+              <circle cx="1" cy="-32" r="10" fill="#ffd9b3"/>
+              <path d="M-9,-36 a10,10 0 0,1 20,0 l0,2 -20,0 z" fill="#5a5248"/>
+              <path d="M-8,-22 L10,-22 L12,4 L-10,4 Z" fill="#5f8a6e"/>
+              <line x1="-6" y1="-18" x2="-16" y2="-6" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="8" y1="-18" x2="16" y2="-9" stroke="#ffd9b3" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="-5" y1="4" x2="-16" y2="24" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <line x1="7" y1="4" x2="12" y2="22" stroke="#ffd9b3" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="-17" cy="26" r="3.4" fill="#fff"/>
+              <circle cx="13" cy="24" r="3.4" fill="#fff"/>
+            </g>
+          </g>
+        </svg>
+        <p class="dist" id="distText"></p>
+      </div>
       <p class="quote" id="quote"></p>
       <div class="controls">
         <button class="btn btn-primary" id="startBtn">ابدأ</button>
@@ -352,11 +417,26 @@ function render() {
   $('earlyBtn').style.display = midSession && !finished ? 'inline-block' : 'none';
   $('startHint').style.display = tasks.length === 0 && !midSession ? 'block' : 'none';
   $('quote').textContent = currentQuote();
+  var road = timerStyle === 'road';
+  $('roadScene').style.display = road ? 'block' : 'none';
+  $('deco').style.display = road ? 'none' : 'block';
+  if (road) {
+    var frac = minutes > 0 ? Math.min(1, Math.max(0, 1 - remaining / (minutes * 60))) : 0;
+    if (finished) frac = 1;
+    var x = 340 - frac * 280;
+    $('runnerGroup').setAttribute('transform', 'translate(' + x + ',120)');
+    var fig = userGender === 'f' ? 'figGirl' : (userGender === 'm' ? 'figBoy' : 'figNeut');
+    ['figGirl','figBoy','figNeut'].forEach(function(id){ $(id).classList.toggle('fig-show', id === fig); });
+    $('dreamLabel').textContent = userDream || 'حلمك';
+    var leftMin = Math.ceil(remaining / 60);
+    $('distText').textContent = finished ? 'وصلت لحلمك في الجلسة دي 🏁' : (frac === 0 ? 'أول الطريق ناحية ' + (userDream || 'حلمك') + '...' : 'باقي ' + leftMin + ' دقيقة وتوصل — قطعت ' + Math.round(frac * 100) + '% من الطريق');
+  }
   themeBackground();
   $('deco').textContent = userGender === 'f' ? '🎀  🌸  🌙' : (userGender === 'm' ? '⭐  ⚡  🏔️' : (userGender === 'n' ? '🌿  🍃  🏞️' : ''));
-  $('panel').className = 'panel' + (font === 'default' ? '' : ' f-' + font);
+  $('panel').className = 'panel' + (road ? ' road-on' : '') + (font === 'default' ? '' : ' f-' + font);
   markChips('presets', String(minutes));
   markChips('themes', theme);
+  markChips('tstyles', timerStyle);
   markChips('fonts', font);
   renderWho();
   renderTasks();
@@ -395,6 +475,7 @@ function makeChips(id, items, cb) {
 makeChips('presets', PRESETS.map(function(m){ return { v:String(m), l:String(m) }; }), function(v){ minutes = +v; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-minutes.v1', minutes); render(); });
 makeChips('themes', THEMES, function(v){ theme = v; store('timer-theme.v1', theme); render(); });
 makeChips('fonts', FONTS, function(v){ font = v; store('timer-font.v1', font); render(); });
+makeChips('tstyles', [ {v:'classic', l:'عادي'}, {v:'road', l:'طريق الحلم 🏁'} ], function(v){ timerStyle = v; store('timer-style.v1', timerStyle); render(); });
 makeChips('ratings', RATINGS, function(v){ rating = { d: todayKey(), v: v }; store('day-rating.v1', rating); render(); });
 
 $('slider').oninput = function() { minutes = +this.value; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-minutes.v1', minutes); render(); };
@@ -422,6 +503,7 @@ function tick() {
   remaining = left;
   if (left <= 0) {
     running = false; finished = true; stopTick();
+    store('timer-run.v1', null);
     logSession(Math.round(minutes), false);
     endMsg = 'خلصت! أحسنت، خد بريك صغير 🤍';
     try { navigator.vibrate && navigator.vibrate([200,100,200]); } catch(e) {}
@@ -433,15 +515,22 @@ function tick() {
 }
 function stopTick() { if (timerId) { clearInterval(timerId); timerId = null; } }
 
+function saveRun() {
+  if (running) store('timer-run.v1', { endAt: endAt, minutes: minutes });
+  else if (!finished) store('timer-run.v1', { remaining: remaining, minutes: minutes });
+  else store('timer-run.v1', null);
+}
 $('startBtn').onclick = function() {
-  if (running) { running = false; stopTick(); render(); return; }
+  if (running) { running = false; stopTick(); saveRun(); render(); return; }
   if (tasks.length === 0 && remaining >= minutes * 60 && !finished) { $('startHint').style.display = 'block'; return; }
   endAt = Date.now() + remaining * 1000;
   running = true; finished = false;
   timerId = setInterval(tick, 500);
+  saveRun();
   render();
 };
 $('earlyBtn').onclick = function() {
+  store('timer-run.v1', null);
   var elapsedMin = Math.floor((minutes * 60 - remaining) / 60);
   var credit = Math.floor(elapsedMin / 4);
   running = false; finished = true; stopTick();
@@ -451,7 +540,7 @@ $('earlyBtn').onclick = function() {
     : 'الجلسة كانت قصيرة أوي، فما اتحسبش وقت. المرة الجاية كمّل أكتر 💪';
   render();
 };
-$('resetBtn').onclick = function() { running = false; finished = false; stopTick(); remaining = minutes*60; render(); };
+$('resetBtn').onclick = function() { running = false; finished = false; stopTick(); store('timer-run.v1', null); remaining = minutes*60; render(); };
 $('quoteBtn').onclick = function() { quoteIdx = quoteIdx + 1; render(); };
 $('clearLog').onclick = function() { sessions = []; store('study-log.v1', sessions); render(); };
 $('notifBtn').onclick = function() {
@@ -513,6 +602,7 @@ $('oNeut').onclick = function() { pickGender('n'); };
 $('oInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('oBtn').click(); });
 $('editWho').onclick = function() { openOnboarding(1); };
 
+var timerStyle = read('timer-style.v1', 'classic');
 var darkMode = read('ui-dark.v1', false);
 function applyMode() {
   document.body.classList.toggle('dark', darkMode);
@@ -536,6 +626,25 @@ $('startHint').onclick = function() { showTab('setup'); };
 setInterval(function(){ quoteIdx = quoteIdx + 1; if (!finished) render(); }, 20000);
 applyGender();
 applyMode();
+var savedRun = read('timer-run.v1', null);
+if (savedRun && savedRun.endAt) {
+  minutes = savedRun.minutes || minutes;
+  var left = Math.round((savedRun.endAt - Date.now()) / 1000);
+  if (left > 0) {
+    remaining = left; endAt = savedRun.endAt; running = true; finished = false;
+    timerId = setInterval(tick, 500);
+  } else {
+    remaining = 0; running = false; finished = true;
+    store('timer-run.v1', null);
+    logSession(Math.round(minutes), false);
+    endMsg = 'خلصت! أحسنت، خد بريك صغير 🤍';
+  }
+} else if (savedRun && typeof savedRun.remaining === 'number') {
+  minutes = savedRun.minutes || minutes;
+  remaining = Math.max(1, savedRun.remaining);
+}
+document.addEventListener('visibilitychange', function() { if (!document.hidden && running) tick(); });
+window.addEventListener('focus', function() { if (running) tick(); });
 if (!userName) openOnboarding(1);
 else if (!userGender) openOnboarding(3);
 showTab(activeTab === 'setup' || activeTab === 'timer' ? activeTab : (tasks.length ? 'timer' : 'setup'));
