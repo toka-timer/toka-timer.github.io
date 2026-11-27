@@ -300,7 +300,7 @@
     <video class="ytpv" id="yptv2" controls playsinline preload="none" style="display:none"></video>
   </section>
 
-  <div class="note"><b>خصوصيتك</b>كل حاجة بتتسجّل على جهازك بس: الاسم، الحلم، الوقت، الشكل، المهام، السجل وتقييم اليوم. مفيش حساب ومفيش حاجة بتتبعت لأي حد، ولو مسحت بيانات المتصفح بتتمسح.</div>
+  <div class="note"><b>خصوصيتك</b>كل حاجة بتتسجّل على جهازك بس: الاسم، الحلم، الوقت، الشكل، المهام، السجل وتقييم اليوم. مفيش حساب، ولو مسحت بيانات المتصفح بتتمسح.<br><b>عدّاد الزيارات 📊</b> بنعدّ عدد مرات فتح التطبيق بس، عشان نعرف كام واحدة بتستخدمه. مفيش اسمك ولا بياناتك ولا كوكيز ولا أي حاجة بتتحفظ على جهازك. بنشوف أرقام إجمالية بس (زي الدولة ونوع المتصفح) ومش بنعرف مين فتح. شغّال بس لما يكون فيه نت. الأرقام ظاهرة لأي حد على <a href="https://toka-timer.goatcounter.com" target="_blank" rel="noopener">toka-timer.goatcounter.com</a>.</div>
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
@@ -1743,6 +1743,21 @@ render(); refreshHave().then(render);
   }
   } catch(swErr) {}
 })();
+</script>
+<script>
+/* visit counter: GoatCounter, cookie-less, online only, after page is ready */
+(function(){ try {
+  function go(){ try {
+    if (!navigator.onLine) return;
+    if (document.getElementById('gcjs')) return;
+    var g = document.createElement('script');
+    g.id = 'gcjs'; g.async = true;
+    g.setAttribute('data-goatcounter', 'https://toka-timer.goatcounter.com/count');
+    g.src = 'https://gc.zgo.at/count.js';
+    document.body.appendChild(g);
+  } catch(e) {} }
+  window.addEventListener('load', function(){ setTimeout(go, 3000); });
+} catch(e) {} })();
 </script>
 </body>
 </html>
