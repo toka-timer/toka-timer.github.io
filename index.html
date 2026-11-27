@@ -298,7 +298,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢٣</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢٤</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -436,6 +436,15 @@
       <div class="by">أحمد عامر</div>
       <p>سلسلة السيرة النبوية بأسلوب مبسّط، حلقة بعد حلقة (٢٦ فيديو)، وبيبدأ من الدرس الأول. تقدري تتنقلي بين الحلقات من جوا المشغّل.</p>
       <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/LI99lWP1zac?playlist=LI99lWP1zac,A6_y0HuwSQw,nqpVIANGU-o,YdWK45slrqc,6SiKw-qQ6mk,GLvr-pYGLOs,aliwSuClQRI,dZ1EkPuj91w,Tl1NmCYk1G4,mvwhozvTKd8,SlBo6bmtuTI,GGFse7G6cAs,3rzbyI2_cvc,7spRnIahHk4,b7YVYhcQdfU,Pt2EEsFtf5Y,EWvAT3HcUic,2XJ1102-9rg,XPql-o9tQ0s,mbsTyEaQmJY,3MF0xKJ2DWo,9SX9K1csx28,TSkXmxSs-pA,ySswp1_bn4A,ZrcxE10HVoQ,k8CLspkQSEk&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <div class="dembed"></div>
+    </div>
+    <div class="dcard">
+      <h3>مجالس القرآن</h3>
+      <div class="by">أحمد عامر</div>
+      <p>مجالس تدبّر في القرآن الكريم. اختاري السلسلة اللي عايزاها، وبيبدأ من أول مجلس في القايمة.</p>
+      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=PLSSxr3Rf2_X0LhahU5RFyX87dKBAjIkZj&rel=0&playsinline=1&iv_load_policy=3">▶ تدبّر الجزء ٢٧ و٢٨ و٢٩</button>
+      <button class="dlink alt dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=PLSSxr3Rf2_X2gA3fxqlTB3F7RQoj5vOcX&rel=0&playsinline=1&iv_load_policy=3">▶ تدبّر سورة إبراهيم</button>
+      <button class="dlink alt dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=PLSSxr3Rf2_X12mvTpHUlgrqjK38r6h5n-&rel=0&playsinline=1&iv_load_policy=3">▶ كلام ربي (مقاطع قصيرة)</button>
       <div class="dembed"></div>
     </div>
     <div class="dcard">
@@ -1610,7 +1619,7 @@ $q('qVol').addEventListener('input', function(){ qvol = Math.max(0, Math.min(1, 
 window.renderQuran = function() { refreshHave().then(function(){ render(); var r = $q('qr' + cur); }); };
 var last = read('quran-last.v1', 0); if (last >= 1 && last <= 114) { cur = last; }
 window.__qa = audio;
-try { var um = document.getElementById('updMsg'); if (um && !um.textContent) um.textContent = 'النسخة اللي عندك: الإصدار ٢٣'; } catch(e) {}
+try { var um = document.getElementById('updMsg'); if (um && !um.textContent) um.textContent = 'النسخة اللي عندك: الإصدار ٢٤'; } catch(e) {}
 render(); refreshHave().then(render);
 })();
 </script>
@@ -1677,7 +1686,7 @@ render(); refreshHave().then(render);
         var w2 = reg.installing || reg.waiting;
         if (w2) { done = true; clearTimeout(guard); say('لقيت نسخة جديدة، بتتثبّت دلوقتي...'); try { w2.postMessage({type:'SKIP_WAITING'}); } catch(e) {} return; }
         done = true; clearTimeout(guard);
-        say('إنتي على آخر نسخة ✓ (الإصدار ٢٣)');
+        say('إنتي على آخر نسخة ✓ (الإصدار ٢٤)');
       }, 1500);
     }).catch(function(){
       if (done) return;
