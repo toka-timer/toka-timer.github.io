@@ -115,7 +115,7 @@
   .qmini { position:fixed; left:8px; right:8px; bottom:68px; z-index:49; display:none; align-items:center; gap:8px; background:var(--ink); color:#fff; border-radius:16px; padding:6px 10px; }
   .qmini .qb { width:38px; height:38px; background:rgba(255,255,255,.15); color:#fff; border:none; }
   .qmini .qt { flex:1; min-width:0; font-weight:600; font-size:14px; cursor:pointer; }
-  body.qmini main { padding-bottom:186px; }
+  body.hasmini main { padding-bottom:186px; }
   body.dark .qb { background:#2a2531; color:var(--ink); } body.dark .qrow.qon { background:#2a3b37; }
   .tabbar { position:fixed; bottom:0; left:0; right:0; padding:0 6px; box-sizing:border-box; display:flex; background:#fff; border-top:1px solid var(--hair); z-index:50; }
   .tabbtn { flex:1 1 0; min-width:0; padding:8px 2px calc(8px + env(safe-area-inset-bottom, 0px)); background:none; border:none; font-size:clamp(11px,3.3vw,14px); white-space:nowrap; font-weight:600; color:var(--ink2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:56px; }
@@ -1327,8 +1327,8 @@ function render() {
   try { if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(function(e){ $q('qStore').textContent = 'المساحة اللي التطبيق واخدها: ' + mb(e.usage || 0); }); } catch(e) {}
 }
 function mini() {
-  var m = $q('qMini'); if (!cur) { m.style.display = 'none'; document.body.classList.remove('qmini'); return; }
-  m.style.display = 'flex'; document.body.classList.add('qmini');
+  var m = $q('qMini'); if (!cur) { m.style.display = 'none'; document.body.classList.remove('hasmini'); return; }
+  m.style.display = 'flex'; document.body.classList.add('hasmini');
   $q('qMiniT').textContent = 'سورة ' + item(cur)[1];
   $q('qMiniP').textContent = audio.paused ? '▶' : '⏸';
 }
