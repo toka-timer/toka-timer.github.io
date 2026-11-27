@@ -186,6 +186,12 @@
   .dcard p { font-size:14px; line-height:1.9; color:var(--ink2); margin-bottom:10px; }
   .dlink { display:block; text-align:center; background:var(--teal); color:#fff; border-radius:12px; padding:12px 14px; font-size:15px; font-weight:700; text-decoration:none; margin-top:8px; }
   button.dlink { width:100%; border:none; font-family:inherit; }
+ .dwrap { position:relative; width:100%; padding-bottom:56.25%; height:0; background:#000; border-radius:12px; margin-top:8px; overflow:hidden; }
+  .dwrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
+  .dload { position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; padding:12px; text-align:center; z-index:0; }
+  .dwrap iframe { z-index:1; background:transparent; }
+  .dfb { display:block; text-align:center; font-size:13px; color:var(--ink2); margin:10px 0 6px; text-decoration:underline; }
+  .dmsg { font-size:13px; line-height:1.8; color:var(--ink2); margin-top:8px; }
   .dlink.alt { background:none; color:var(--teal); border:1px solid var(--teal); }
 </style>
 </head>
@@ -435,35 +441,35 @@
       <h3>السيرة النبوية ﷺ</h3>
       <div class="by">أحمد عامر</div>
       <p>سلسلة السيرة النبوية بأسلوب مبسّط، حلقة بعد حلقة (٢٦ فيديو)، وبيبدأ من الدرس الأول. تقدري تتنقلي بين الحلقات من جوا المشغّل.</p>
-      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/LI99lWP1zac?playlist=LI99lWP1zac,A6_y0HuwSQw,nqpVIANGU-o,YdWK45slrqc,6SiKw-qQ6mk,GLvr-pYGLOs,aliwSuClQRI,dZ1EkPuj91w,Tl1NmCYk1G4,mvwhozvTKd8,SlBo6bmtuTI,GGFse7G6cAs,3rzbyI2_cvc,7spRnIahHk4,b7YVYhcQdfU,Pt2EEsFtf5Y,EWvAT3HcUic,2XJ1102-9rg,XPql-o9tQ0s,mbsTyEaQmJY,3MF0xKJ2DWo,9SX9K1csx28,TSkXmxSs-pA,ySswp1_bn4A,ZrcxE10HVoQ,k8CLspkQSEk&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <button class="dlink dplay" data-yt="https://www.youtube.com/playlist?list=PLSSxr3Rf2_X2oKwiy4UhzIdj4ACzB6dee" data-src="https://www.youtube-nocookie.com/embed/LI99lWP1zac?playlist=LI99lWP1zac,A6_y0HuwSQw,nqpVIANGU-o,YdWK45slrqc,6SiKw-qQ6mk,GLvr-pYGLOs,aliwSuClQRI,dZ1EkPuj91w,Tl1NmCYk1G4,mvwhozvTKd8,SlBo6bmtuTI,GGFse7G6cAs,3rzbyI2_cvc,7spRnIahHk4,b7YVYhcQdfU,Pt2EEsFtf5Y,EWvAT3HcUic,2XJ1102-9rg,XPql-o9tQ0s,mbsTyEaQmJY,3MF0xKJ2DWo,9SX9K1csx28,TSkXmxSs-pA,ySswp1_bn4A,ZrcxE10HVoQ,k8CLspkQSEk&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
       <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>أصحاب رسول الله ﷺ</h3>
       <div class="by">أحمد عامر</div>
       <p>سلسلة عن حياة الصحابة، ٢١ درس (حوالي ٢٥ إلى ٥٠ دقيقة للدرس)، من بلال بن رباح لحد عبد الله بن عباس. بيبدأ من الدرس الأول.</p>
-      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/ySLr9IF1tk8?playlist=ySLr9IF1tk8,5kE1cDeWpGM,QxtIaaOi590,tBSXW4IqUNo,tLvXPDdr5nI,_PB38MUvciY,LKYmm4ZB17M,BZVPulJrJ78,Op4PVZnnqxU,5Y-mytv4Ze4,ffhsdPiGBDk,iLFCIWAJunk,x7wcsjpV9g8,8RRTcpHGpHA,XJF5M3ECU5s,dZh6h2fV_9c,cSlK_VY3PrM,5uflf6xl3Ms,QryW5qlvAHg,7VQHkZEFjxA,n4mvgMHEP20&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <button class="dlink dplay" data-yt="https://www.youtube.com/playlist?list=PLSSxr3Rf2_X1KkCTVpfCVEVcoY16ACSuf" data-src="https://www.youtube-nocookie.com/embed/ySLr9IF1tk8?playlist=ySLr9IF1tk8,5kE1cDeWpGM,QxtIaaOi590,tBSXW4IqUNo,tLvXPDdr5nI,_PB38MUvciY,LKYmm4ZB17M,BZVPulJrJ78,Op4PVZnnqxU,5Y-mytv4Ze4,ffhsdPiGBDk,iLFCIWAJunk,x7wcsjpV9g8,8RRTcpHGpHA,XJF5M3ECU5s,dZh6h2fV_9c,cSlK_VY3PrM,5uflf6xl3Ms,QryW5qlvAHg,7VQHkZEFjxA,n4mvgMHEP20&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
       <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>قصص القرآن</h3>
       <div class="by">أحمد عامر</div>
       <p>١٠ دروس (حوالي ٣٠ إلى ٦٥ دقيقة للدرس): ٦ دروس عن بلعام وأصحاب السبت وبقرة بني إسرائيل وطالوت وجالوت وقارون، وبعدها ٤ دروس في سورة الكهف (أهل الكهف، صاحب الجنتين، موسى والخضر، ذو القرنين).</p>
-      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/ejBKVRYtY_s?playlist=ejBKVRYtY_s,rUc_dl7p1PM,_1UC5_LHFnw,TwhvAvi6iPY,vwhpFqfjQTo,DJkRjzccm3M,Atx8H_b-cbU,4HX5U5GRANY,Njm4uKwrdnI,L-EuGScpsgg&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <button class="dlink dplay" data-yt="https://www.youtube.com/playlist?list=PLSSxr3Rf2_X09k084XozCL-GIIil-lC4V" data-src="https://www.youtube-nocookie.com/embed/ejBKVRYtY_s?playlist=ejBKVRYtY_s,rUc_dl7p1PM,_1UC5_LHFnw,TwhvAvi6iPY,vwhpFqfjQTo,DJkRjzccm3M,Atx8H_b-cbU,4HX5U5GRANY,Njm4uKwrdnI,L-EuGScpsgg&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
       <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>بودكاست فاهم</h3>
       <div class="by">تقديم هلال السيد</div>
       <p>حلقات مع متخصصين عن الدين والحياة من منظور إسلامي. بيشغّل أحدث الحلقات، وتقدري تختاري غيرها من جوا المشغّل.</p>
-      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUuIayeub56xP83u7u-_d-SQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <button class="dlink dplay" data-yt="https://www.youtube.com/playlist?list=UUuIayeub56xP83u7u-_d-SQ" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUuIayeub56xP83u7u-_d-SQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
       <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>بودكاست إيه المشكلة؟</h3>
       <div class="by">د. محمد الغليظ، د. أمير منير، م. ياسر ممدوح</div>
       <p>أسئلة الشباب في الدين والعلاقات وتحديات الحياة. بيشغّل أحدث الحلقات، وتقدري تختاري غيرها من جوا المشغّل.</p>
-      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUQ2X_YPmdjBOjVq6dLbO0pQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <button class="dlink dplay" data-yt="https://www.youtube.com/playlist?list=UUQ2X_YPmdjBOjVq6dLbO0pQ" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUQ2X_YPmdjBOjVq6dLbO0pQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
       <div class="dembed"></div>
     </div>
     <p class="cap" id="deenOff" style="color:#b0455a"></p>
@@ -1350,16 +1356,43 @@ document.getElementById('hdNote').addEventListener('blur', hdSave);
 document.addEventListener('visibilitychange', function(){ if (document.hidden) hdSave(); else if (activeTab === 'hudoo') { var k = hdKey(new Date()); if (k !== hdCurKey) { hdSave(); renderHudoo(); } } });
 window.addEventListener('pagehide', hdSave);
 
-function deenClose() { var bs = document.querySelectorAll('.dembed'); for (var i = 0; i < bs.length; i++) { bs[i].innerHTML = ''; } var pb = document.querySelectorAll('.dplay'); for (var j = 0; j < pb.length; j++) { pb[j].style.display = ''; } }
+function deenClose() { clearTimeout(deenTimer); var bs = document.querySelectorAll('.dembed'); for (var i = 0; i < bs.length; i++) { bs[i].innerHTML = ''; } var pb = document.querySelectorAll('.dplay'); for (var j = 0; j < pb.length; j++) { pb[j].style.display = ''; } }
+var deenTimer = null, deenOk = false, deenBtn = null;
+function deenStart(btn, mode) {
+  deenBtn = btn; deenOk = false; clearTimeout(deenTimer);
+  var box = btn.parentNode.querySelector('.dembed');
+  var src = btn.getAttribute('data-src');
+  if (mode === 1) src = src.replace('www.youtube-nocookie.com', 'www.youtube.com');
+  src += '&enablejsapi=1&origin=' + encodeURIComponent(location.origin);
+  var yt = btn.getAttribute('data-yt') || 'https://www.youtube.com/';
+  box.innerHTML = '<div class="dwrap"><div class="dload">بيحمّل الفيديو... ممكن ياخد ثواني</div><iframe src="' + src + '" title="مشغّل الفيديو" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>' +
+    '<div class="dmsg" style="display:none"></div>' +
+    '<a class="dfb" href="' + yt + '" target="_blank" rel="noopener">مش بيشتغل؟ افتحي على يوتيوب</a>' +
+    '<button class="dlink alt dclose">إغلاق المشغّل ✕</button>';
+  btn.style.display = 'none';
+  var fr = box.querySelector('iframe');
+  fr.addEventListener('load', function() {
+    var n = 0;
+    var iv = setInterval(function() { n++; try { fr.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); } catch (e) {} if (deenOk || n > 16) clearInterval(iv); }, 500);
+  });
+  deenTimer = setTimeout(function() {
+    if (deenOk) return;
+    var m = box.querySelector('.dmsg'); if (!m) return;
+    m.style.display = 'block';
+    m.innerHTML = 'الفيديو مش ظاهر عندك. ممكن النت ضعيف، أو المتصفح أو الجهاز بيمنع المشغّل.' + (mode === 0 ? '<button class="dlink alt dalt">جرّبي مشغّل بديل</button>' : '') + '<a class="dlink alt" href="' + yt + '" target="_blank" rel="noopener">افتحي على يوتيوب (هتروحي لصفحة يوتيوب)</a>';
+  }, 10000);
+}
+window.addEventListener('message', function(ev) {
+  try { if (String(ev.origin).indexOf('youtube') < 0) return; } catch (e) { return; }
+  deenOk = true; var l = document.querySelector('.dload'); if (l) l.style.display = 'none'; var m = document.querySelector('.dmsg'); if (m) m.style.display = 'none';
+});
 document.getElementById('tabDeen').addEventListener('click', function(e) {
   var t = e.target;
   if (t.classList && t.classList.contains('dplay')) {
     if (!navigator.onLine) { document.getElementById('deenOff').textContent = 'مفيش نت دلوقتي. التشغيل محتاج نت.'; return; }
-    deenClose();
-    var box = t.parentNode.querySelector('.dembed');
-    box.innerHTML = '<iframe src="' + t.getAttribute('data-src') + '" title="مشغّل الفيديو" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#000;margin-top:8px"></iframe><button class="dlink alt dclose">إغلاق المشغّل ✕</button>';
-    t.style.display = 'none';
-  } else if (t.classList && t.classList.contains('dclose')) { deenClose(); }
+    deenClose(); deenStart(t, 0);
+  } else if (t.classList && t.classList.contains('dalt')) { var b = deenBtn; deenClose(); if (b) deenStart(b, 1); }
+  else if (t.classList && t.classList.contains('dclose')) { deenClose(); }
 });
 function openDrawer() { document.getElementById('drawerBg').style.display = 'block'; var d = document.getElementById('drawer'); d.classList.add('open'); d.setAttribute('aria-hidden', 'false'); }
 function closeDrawer() { document.getElementById('drawerBg').style.display = 'none'; var d = document.getElementById('drawer'); d.classList.remove('open'); d.setAttribute('aria-hidden', 'true'); }
