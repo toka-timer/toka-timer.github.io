@@ -1,6 +1,6 @@
 // مؤقّت المذاكرة التحفيزي - service worker
 // IMPORTANT: bump this version on every app update so users get the new files.
-var CACHE_NAME = 'toka-timer-v23';
+var CACHE_NAME = 'toka-timer-v24';
 var CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 var EXTRA = [
   './ypt1.p0','./ypt1.p1','./ypt1.p2','./ypt1.p3','./ypt1.p4','./ypt1.p5',
@@ -42,7 +42,7 @@ self.addEventListener('install', function(e){
 self.addEventListener('activate', function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
-      return Promise.all(keys.filter(function(k){ return k !== CACHE_NAME; }).map(function(k){ return caches.delete(k); }));
+      return Promise.all(keys.filter(function(k){ return k !== CACHE_NAME && k !== 'quran-audio-v1'; }).map(function(k){ return caches.delete(k); }));
     }).then(function(){ return self.clients.claim(); })
   );
 });
@@ -55,6 +55,8 @@ self.addEventListener('message', function(e){
 self.addEventListener('fetch', function(e){
   if (e.request.method !== 'GET') return;
   if (e.request.url.indexOf(self.location.origin) !== 0) return;
+  // Quran audio: never cached by the app cache; the page manages its own cache and streams from the network
+  if (new URL(e.request.url).pathname.indexOf('/quran/') !== -1) return;
   e.respondWith(
     caches.match(e.request).then(function(r){
       return r || fetch(e.request);
