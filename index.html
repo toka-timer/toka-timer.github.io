@@ -188,7 +188,7 @@
   button.dlink { width:100%; border:none; font-family:inherit; }
  .dwrap { position:relative; width:100%; padding-bottom:56.25%; height:0; background:#000; border-radius:12px; margin-top:8px; overflow:hidden; }
   .dwrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
-  .dload { position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; padding:12px; text-align:center; z-index:0; }
+  .dload { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:rgba(0,0,0,.65); color:#fff; font-size:13px; padding:7px 14px; border-radius:20px; text-align:center; z-index:2; pointer-events:none; white-space:nowrap; }
   .dwrap iframe { z-index:1; background:transparent; }
   .dfb { display:block; text-align:center; font-size:13px; color:var(--ink2); margin:10px 0 6px; text-decoration:underline; }
   .dmsg { font-size:13px; line-height:1.8; color:var(--ink2); margin-top:8px; }
@@ -1376,6 +1376,7 @@ function deenStart(btn, mode) {
     var iv = setInterval(function() { n++; try { fr.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); } catch (e) {} if (deenOk || n > 16) clearInterval(iv); }, 500);
   });
   deenTimer = setTimeout(function() {
+    var ld = box.querySelector('.dload'); if (ld) ld.style.display = 'none';
     if (deenOk) return;
     var m = box.querySelector('.dmsg'); if (!m) return;
     m.style.display = 'block';
