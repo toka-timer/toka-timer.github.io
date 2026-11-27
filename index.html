@@ -105,6 +105,18 @@
   .caldot { position:absolute; bottom:3px; left:50%; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:#e08a9b; }
   .calempty { visibility:hidden; }
   .cdrow { display:flex; justify-content:space-between; gap:10px; padding:4px 0; }
+  .qrow { display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid var(--hair); }
+  .qrow.qon { background:#eef6f3; border-radius:12px; }
+  .qn { width:34px; text-align:center; font-weight:700; color:var(--teal); font-size:14px; }
+  .qnm { flex:1; min-width:0; font-size:16px; font-weight:600; }
+  .qnm small { display:block; font-size:12px; color:var(--ink2); font-weight:400; margin-top:2px; }
+  .qb { width:42px; height:42px; border-radius:50%; border:1px solid var(--hair); background:#fff; font-size:18px; flex:none; }
+  .qpr { width:42px; text-align:center; font-size:12px; font-weight:700; flex:none; }
+  .qmini { position:fixed; left:8px; right:8px; bottom:52px; z-index:49; display:none; align-items:center; gap:8px; background:var(--ink); color:#fff; border-radius:16px; padding:6px 10px; }
+  .qmini .qb { width:38px; height:38px; background:rgba(255,255,255,.15); color:#fff; border:none; }
+  .qmini .qt { flex:1; min-width:0; font-weight:600; font-size:14px; cursor:pointer; }
+  body.qmini main { padding-bottom:170px; }
+  body.dark .qb { background:#2a2531; color:var(--ink); } body.dark .qrow.qon { background:#2a3b37; }
   .tabbar { position:fixed; bottom:0; left:0; right:0; display:flex; background:#fff; border-top:1px solid var(--hair); z-index:50; }
   .tabbtn { flex:1; min-width:0; padding:14px 2px 16px; background:none; border:none; font-size:clamp(12px,3.6vw,15px); white-space:nowrap; font-weight:600; color:var(--ink2); }
   .tabbtn.sel { color:var(--teal); box-shadow:inset 0 3px 0 var(--teal); }
@@ -260,7 +272,7 @@
 
   <footer style="margin-top:20px">الملف ده بيشتغل من غير نت بعد أول تحميل، ومن غير حساب ولا تسجيل. ابعته لأي حد زي ما هو.</footer>
   <button class="goTimer" id="goTimer">جاهز؟ يلا للتايمر ⏱️</button>
-  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢٢</p>
+  <p class="cap" style="text-align:center">رفيق الدرب — الإصدار ٢٣</p>
 </div>
 
 <div id="tabTimer" style="display:none">
@@ -360,13 +372,31 @@
     <div class="note" id="calDetail" style="margin-top:12px"></div>
   </section>
 </div>
+<div id="tabQuran" style="display:none">
+  <section>
+    <h2>القرآن الكريم 📖</h2>
+    <p class="cap">بصوت الشيخ محمود خليل الحصري، المصحف المرتل، من الفاتحة للناس بالترتيب. كل سورة كاملة.</p>
+    <p class="cap">مفيش حاجة بتتنزّل لوحدها. دوسي ⬇ على السورة اللي عايزاها وهتفضل على جهازك وتشتغل من غير نت. ▶ من غير تنزيل بتسمع بالنت.</p>
+    <label class="lbl">صوت القرآن (غير صوت المطر)</label>
+    <input type="range" id="qVol" min="0" max="100" step="5" style="width:100%">
+    <button class="outline" id="qAll" style="margin-top:10px;width:100%"></button>
+    <p class="cap" id="qStore"></p>
+    <p class="cap" id="qMsg" style="color:#b0455a"></p>
+    <details class="note" style="margin:10px 0"><summary><b>القرآن بيقف لما أخرج من التطبيق؟ 🔋</b></summary>
+      <p class="cap">موفّر البطارية في بعض الموبايلات بيقفل التطبيق في الخلفية، والتطبيق نفسه مش بيقدر يغيّر ده. من إعدادات الموبايل: <b>الإعدادات ← التطبيقات ← Chrome (أو اسم التطبيق لو مثبّتاه) ← البطارية ← غير مقيّد (Unrestricted)</b>. ده الاسم في سامسونج. في إنفينكس الخطوات قريبة بس الأسماء بتختلف (دوري على "البطارية" أو "تشغيل في الخلفية" لـ Chrome وسيبيه مسموح). ومتمسحيش التطبيق من الشاشة الأخيرة.</p>
+    </details>
+    <div id="qList"></div>
+  </section>
+</div>
 </main>
 
+<div class="qmini" id="qMini"><button class="qb" id="qMiniP">▶</button><span class="qt" id="qMiniT"></span><button class="qb" id="qMiniN" aria-label="السورة اللي بعدها">⏭</button><button class="qb" id="qMiniB" aria-label="فتح القائمة">📖</button></div>
 <nav class="tabbar">
   <button class="tabbtn" id="tabBtnSetup">الإعداد ⚙️</button>
   <button class="tabbtn" id="tabBtnTimer">التايمر ⏱️</button>
   <button class="tabbtn" id="tabBtnReview">المراجعة 📈</button>
   <button class="tabbtn" id="tabBtnCal">التقويم 📅</button>
+  <button class="tabbtn" id="tabBtnQuran">القرآن 📖</button>
 </nav>
 
 <div class="overlay" id="overlay" style="display:none">
@@ -993,6 +1023,7 @@ function fmtAr(t) { return fmt(t).replace(/[0-9]/g, function(c){ return AR_DIGIT
 var lastMediaBucket = null;
 function updateMedia() {
   if (!mediaOn) return;
+  if (window.__qPlaying && window.__qPlaying()) return;
   try {
     var bucket = running ? Math.floor(remaining / 10) : (finished ? -2 : -3);
     if (bucket === lastMediaBucket) return;
@@ -1012,8 +1043,8 @@ function updateMedia() {
 }
 if (mediaOn) {
   try {
-    navigator.mediaSession.setActionHandler('pause', function() { if (running) $('startBtn').click(); });
-    navigator.mediaSession.setActionHandler('play', function() { if (!running && !finished && tasks.length > 0) $('startBtn').click(); });
+    navigator.mediaSession.setActionHandler('pause', function() { if (window.__qPlaying && window.__qPlaying()) window.__qToggle(); else if (running) $('startBtn').click(); });
+    navigator.mediaSession.setActionHandler('play', function() { if (window.__qRecent && window.__qRecent()) { window.__qToggle(); return; } if (!running && !finished && tasks.length > 0) $('startBtn').click(); });
   } catch(e) {}
 }
 document.addEventListener('pointerdown', function() {
@@ -1182,12 +1213,16 @@ function showTab(t) {
   $('tabBtnReview').classList.toggle('sel', t === 'review');
   $('tabCal').style.display = t === 'cal' ? 'block' : 'none';
   $('tabBtnCal').classList.toggle('sel', t === 'cal');
+  $('tabQuran').style.display = t === 'quran' ? 'block' : 'none';
+  $('tabBtnQuran').classList.toggle('sel', t === 'quran');
+  if (t === 'quran') { try { renderQuran(); } catch (e) {} window.scrollTo(0, 0); }
   if (t === 'cal') { calSel = ''; calY = 0; try { renderCalendar(); } catch (e) {} window.scrollTo(0, 0); }
 }
 $('tabBtnSetup').onclick = function() { showTab('setup'); };
 $('tabBtnTimer').onclick = function() { showTab('timer'); };
 $('tabBtnReview').onclick = function() { showTab('review'); };
 $('tabBtnCal').onclick = function() { showTab('cal'); };
+$('tabBtnQuran').onclick = function() { showTab('quran'); };
 $('goTimer').onclick = function() { showTab('timer'); window.scrollTo(0,0); };
 $('startHint').onclick = function() { showTab('setup'); };
 
@@ -1223,7 +1258,7 @@ document.addEventListener('visibilitychange', function() { if (!document.hidden 
 window.addEventListener('focus', function() { if (running) tick(); });
 if (!userName) openOnboarding(1);
 else if (!userGender) openOnboarding(3);
-showTab(activeTab === 'setup' || activeTab === 'timer' || activeTab === 'review' || activeTab === 'cal' ? activeTab : (tasks.length ? 'timer' : 'setup'));
+showTab(activeTab === 'setup' || activeTab === 'timer' || activeTab === 'review' || activeTab === 'cal' || activeTab === 'quran' ? activeTab : (tasks.length ? 'timer' : 'setup'));
 render();
 } catch(startErr) {
   try { localStorage.setItem('timer-last-error.v1', JSON.stringify({ t: new Date().toISOString(), msg: 'بدء التشغيل: ' + String(startErr && startErr.message || startErr) })); } catch(x) {}
@@ -1236,6 +1271,188 @@ render();
 function hideSplash() { var sp = $('splash'); if (!sp || sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(function(){ sp.style.display = 'none'; }, 600); }
 setTimeout(hideSplash, 1300);
 $('splash').addEventListener('click', hideSplash);
+</script>
+
+<script>
+(function(){
+var QM = [[1,"الفاتحة",102772,57],[2,"البقرة",22783317,11957],[3,"آل عمران",12741456,6888],[4,"النساء",12879362,6902],[5,"المائدة",10410029,5557],[6,"الأنعام",11588603,6276],[7,"الأعراف",11802341,6476],[8,"الأنفال",4609270,2501],[9,"التوبة",9568390,5185],[10,"يونس",6638703,3567],[11,"هود",5996196,3303],[12,"يوسف",6284565,3430],[13,"الرعد",3045852,1633],[14,"إبراهيم",3110351,1656],[15,"الحجر",2494089,1361],[16,"النحل",6323736,3498],[17,"الإسراء",5555473,3021],[18,"الكهف",5454208,2869],[19,"مريم",2854998,1485],[20,"طه",4282524,2305],[21,"الأنبياء",4003131,2205],[22,"الحج",4613329,2534],[23,"المؤمنون",3783050,2128],[24,"النور",5057140,2679],[25,"الفرقان",3314269,1759],[26,"الشعراء",5360598,2977],[27,"النمل",4685198,2561],[28,"القصص",5848381,3151],[29,"العنكبوت",3744741,2044],[30,"الروم",3209405,1727],[31,"لقمان",2061437,1152],[32,"السجدة",1463487,827],[33,"الأحزاب",4607115,2430],[34,"سبأ",2682574,1476],[35,"فاطر",2644015,1428],[36,"يس",2584750,1431],[37,"الصافات",3696236,2065],[38,"ص",2850522,1520],[39,"الزمر",4239448,2322],[40,"غافر",4368897,2348],[41,"فصلت",2672197,1490],[42,"الشورى",3124944,1716],[43,"الزخرف",3323426,1875],[44,"الدّخان",1553470,840],[45,"الجاثية",1932488,1072],[46,"الأحقاف",2070676,1154],[47,"محمد",2013795,1092],[48,"الفتح",1876456,1026],[49,"الحجرات",1386176,779],[50,"ق",1396439,791],[51,"الذاريات",1211386,687],[52,"الطور",1061800,598],[53,"النجم",1296284,686],[54,"القمر",1350809,732],[55,"الرحمن",1952702,1030],[56,"الواقعة",1776830,996],[57,"الحديد",2021965,1109],[58,"المجادلة",1868913,1000],[59,"الحشر",1578464,842],[60,"الممتحنة",1108506,606],[61,"الصف",749594,423],[62,"الجمعة",594754,328],[63,"المنافقون",703781,390],[64,"التغابن",912614,507],[65,"الطلاق",1008024,543],[66,"التحريم",1050899,579],[67,"الملك",1212193,673],[68,"القلم",1230398,680],[69,"الحاقة",871369,480],[70,"المعارج",810400,434],[71,"نوح",782355,420],[72,"الجن",955592,515],[73,"المزمل",715102,384],[74,"المدثر",791236,444],[75,"القيامة",560458,303],[76,"الإنسان",979910,525],[77,"المرسلات",834088,447],[78,"النبأ",781492,404],[79,"النازعات",725658,401],[80,"عبس",500141,283],[81,"التكوير",391954,215],[82,"الإنفطار",321868,180],[83,"المطففين",724553,407],[84,"الإنشقاق",423129,235],[85,"البروج",442610,242],[86,"الطارق",245416,137],[87,"الأعلى",291732,162],[88,"الغاشية",406561,220],[89,"الفجر",596648,325],[90,"البلد",340986,183],[91,"الشمس",237879,126],[92,"الليل",314569,166],[93,"الضحى",170823,94],[94,"الشرح",110346,63],[95,"التين",150067,84],[96,"العلق",300100,156],[97,"القدر",122159,67],[98,"البينة",371652,188],[99,"الزلزلة",165238,89],[100,"العاديات",165925,95],[101,"القارعة",159857,90],[102,"التكاثر",128594,73],[103,"العصر",67344,40],[104,"الهمزة",143690,79],[105,"الفيل",101484,58],[106,"قريش",88481,50],[107,"الماعون",119261,68],[108,"الكوثر",55145,33],[109,"الكافرون",113585,65],[110,"النصر",84774,49],[111,"المسد",100660,54],[112,"الإخلاص",60224,35],[113,"الفلق",84253,48],[114,"الناس",101125,57]];
+var QCACHE = 'quran-audio-v1';
+var QNAME = 'الشيخ محمود خليل الحصري';
+var AD = '٠١٢٣٤٥٦٧٨٩';
+function ar(x) { return String(x).replace(/[0-9]/g, function(c){ return AD[+c]; }); }
+function mb(b) { return ar((b/1048576).toFixed(1)).replace('.', '٫') + ' م.ب'; }
+function dur(s) { var h = Math.floor(s/3600), m = Math.round((s%3600)/60); if (m === 60) { h++; m = 0; } return (h ? ar(h) + ' س ' : '') + ar(m) + ' د'; }
+function qurl(n) { return 'quran/' + String(n).padStart(3, '0') + '.ogg'; }
+var audio = new Audio(); audio.preload = 'none';
+var cur = 0, blobUrl = null, have = {}, busy = {}, cancelAll = false, allRunning = false, confirmAll = false, lastSave = 0, pausedAt = 0, loadTok = 0;
+var pos = read('quran-pos.v1', {});
+var qvol = read('quran-vol.v1', 0.9); audio.volume = qvol;
+function $q(id) { return document.getElementById(id); }
+function item(n) { return QM[n-1]; }
+function savePos(force) {
+  if (!cur) return; var t = Date.now(); if (!force && t - lastSave < 4000) return; lastSave = t;
+  pos[cur] = audio.currentTime || 0; store('quran-pos.v1', pos); store('quran-last.v1', cur);
+}
+function openCache() { return ('caches' in window) ? caches.open(QCACHE) : Promise.reject(new Error('nocache')); }
+function refreshHave() {
+  return openCache().then(function(c){ return c.keys(); }).then(function(ks){
+    have = {};
+    ks.forEach(function(r){ var m = /quran\/(\d{3})\.ogg/.exec(r.url); if (m) have[+m[1]] = true; });
+  }).catch(function(){ have = {}; });
+}
+function setMsg(t) { $q('qMsg').textContent = t || ''; }
+function render() {
+  var list = $q('qList'); var html = '';
+  for (var i = 0; i < QM.length; i++) {
+    var it = QM[i], n = it[0], on = cur === n;
+    var pl = on && !audio.paused;
+    html += '<div class="qrow' + (on ? ' qon' : '') + '" id="qr' + n + '"><span class="qn">' + ar(n) + '</span>' +
+      '<span class="qnm">' + it[1] + '<small>' + mb(it[2]) + ' · ' + dur(it[3]) + (have[n] ? ' · ✓ على الجهاز' : '') + '</small></span>' +
+      '<button class="qb" data-p="' + n + '" aria-label="' + (pl ? 'إيقاف' : 'تشغيل') + '">' + (pl ? '⏸' : '▶') + '</button>' +
+      (busy[n] ? '<span class="qpr" id="qp' + n + '">' + ar(busy[n]) + '٪</span>' :
+        (have[n] ? '<button class="qb qdel" data-d="' + n + '" aria-label="مسح من الجهاز">🗑</button>' :
+          '<button class="qb qdl" data-l="' + n + '" aria-label="تنزيل">⬇</button>')) + '</div>';
+  }
+  list.innerHTML = html;
+  var rest = 0, cnt = 0; QM.forEach(function(it){ if (!have[it[0]]) { rest += it[2]; cnt++; } });
+  var ab = $q('qAll');
+  if (allRunning) ab.textContent = 'وقّف التنزيل ✋';
+  else if (!cnt) ab.textContent = 'كل السور على جهازك ✓';
+  else if (confirmAll) ab.textContent = 'تأكيد: نزّل ' + ar(cnt) + ' سورة (' + mb(rest) + ')';
+  else ab.textContent = 'نزّل الكل (' + mb(rest) + ')';
+  ab.disabled = !allRunning && !cnt;
+  mini();
+  try { if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(function(e){ $q('qStore').textContent = 'المساحة اللي التطبيق واخدها: ' + mb(e.usage || 0); }); } catch(e) {}
+}
+function mini() {
+  var m = $q('qMini'); if (!cur) { m.style.display = 'none'; document.body.classList.remove('qmini'); return; }
+  m.style.display = 'flex'; document.body.classList.add('qmini');
+  $q('qMiniT').textContent = 'سورة ' + item(cur)[1];
+  $q('qMiniP').textContent = audio.paused ? '▶' : '⏸';
+}
+function revoke() { if (blobUrl) { try { URL.revokeObjectURL(blobUrl); } catch(e) {} blobUrl = null; } }
+function setSession() {
+  try {
+    if (!('mediaSession' in navigator) || !cur) return;
+    navigator.mediaSession.metadata = new MediaMetadata({ title: 'سورة ' + item(cur)[1], artist: QNAME, album: 'القرآن الكريم' });
+    navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+    navigator.mediaSession.setActionHandler('nexttrack', function(){ if (cur < 114) play(cur + 1, true); });
+    navigator.mediaSession.setActionHandler('previoustrack', function(){ if (cur > 1) play(cur - 1, true); });
+  } catch(e) {}
+}
+function play(n, fresh) {
+  var tok = ++loadTok;
+  savePos(true);
+  var same = (cur === n && audio.src);
+  if (same && !fresh) { audio.play().catch(function(){}); return; }
+  audio.pause(); cur = n; setMsg('');
+  var start = fresh ? 0 : (pos[n] || 0);
+  var go = function(src) {
+    if (tok !== loadTok) return;
+    audio.src = src;
+    var once = function() {
+      audio.removeEventListener('loadedmetadata', once);
+      if (start > 1 && audio.duration && start < audio.duration - 3) { try { audio.currentTime = start; } catch(e) {} }
+    };
+    audio.addEventListener('loadedmetadata', once);
+    audio.play().then(function(){ setSession(); }).catch(function(){ setMsg('مقدرتش أشغّل. دوسي ▶ تاني.'); });
+    setSession(); render();
+  };
+  var fallback = function() {
+    revoke();
+    if (!navigator.onLine) { setMsg('مفيش نت والسورة دي مش منزّلة. نزّليها الأول وإنتي على نت.'); render(); return; }
+    go(qurl(n));
+  };
+  openCache().then(function(c){ return c.match(qurl(n)); }).then(function(r){
+    if (!r) return fallback();
+    return r.blob().then(function(b){ revoke(); blobUrl = URL.createObjectURL(new Blob([b], { type: 'audio/ogg' })); go(blobUrl); });
+  }).catch(fallback);
+}
+function toggle(n) {
+  if (cur === n && audio.src && !audio.paused) { audio.pause(); return; }
+  play(n, false);
+}
+audio.addEventListener('play', function(){ setSession(); render(); });
+audio.addEventListener('pause', function(){ pausedAt = Date.now(); savePos(true); setSession(); render(); try { lastMediaBucket = null; updateMedia(); } catch(e) {} });
+audio.addEventListener('timeupdate', function(){ savePos(false); });
+audio.addEventListener('ended', function(){
+  pos[cur] = 0; store('quran-pos.v1', pos);
+  if (cur < 114) play(cur + 1, true); else { render(); }
+});
+audio.addEventListener('error', function(){
+  if (!audio.src) return;
+  setMsg(navigator.onLine ? 'السورة دي مش راضية تشتغل. جرّبي تاني.' : 'مفيش نت. نزّلي السورة وإنتي على نت علشان تشتغل من غير نت.'); render();
+});
+window.__qPlaying = function() { return !!(cur && audio.src && !audio.paused); };
+window.__qRecent = function() { return !!(cur && audio.src && audio.paused && Date.now() - pausedAt < 180000); };
+window.__qToggle = function() { if (cur) toggle(cur); };
+function download(n) {
+  if (busy[n] || have[n]) return Promise.resolve();
+  busy[n] = 1; render();
+  var it = item(n), chunks = [], got = 0;
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e) {}
+  return fetch(qurl(n), { cache: 'no-store' }).then(function(r){
+    if (!r.ok || !r.body) throw new Error('http');
+    var rd = r.body.getReader(), lastPct = 0;
+    var step = function() {
+      return rd.read().then(function(x){
+        if (x.done) return;
+        chunks.push(x.value); got += x.value.length;
+        var p = Math.min(99, Math.floor(got / it[2] * 100));
+        if (p !== lastPct) { lastPct = p; busy[n] = Math.max(1, p); var el = $q('qp' + n); if (el) el.textContent = ar(p) + '٪'; }
+        if (cancelAll) { try { rd.cancel(); } catch(e) {} throw new Error('cancel'); }
+        return step();
+      });
+    };
+    return step();
+  }).then(function(){
+    if (got !== it[2]) throw new Error('size');
+    var blob = new Blob(chunks, { type: 'audio/ogg' }); chunks = null;
+    return openCache().then(function(c){ return c.put(qurl(n), new Response(blob, { headers: { 'Content-Type': 'audio/ogg', 'Content-Length': String(it[2]) } })); });
+  }).then(function(){ have[n] = true; delete busy[n]; render(); })
+  .catch(function(e){
+    delete busy[n]; chunks = null;
+    if (e && e.message === 'cancel') setMsg('اتوقّف التنزيل.');
+    else if (e && e.name === 'QuotaExceededError') setMsg('مفيش مساحة كفاية على الموبايل لسورة ' + it[1] + '.');
+    else setMsg('تنزيل سورة ' + it[1] + ' ما كملش (النت أو المساحة). جرّبي تاني.');
+    render(); throw e;
+  });
+}
+function downloadAll() {
+  if (allRunning) { cancelAll = true; return; }
+  if (!confirmAll) { confirmAll = true; render(); setMsg('ده هيستهلك نت كتير. دوسي مرة تانية للتأكيد، أو نزّلي سور معينة بس.'); return; }
+  confirmAll = false; cancelAll = false; allRunning = true; setMsg(''); render();
+  var i = 0;
+  var next = function() {
+    while (i < QM.length && have[QM[i][0]]) i++;
+    if (cancelAll || i >= QM.length) { allRunning = false; cancelAll = false; render(); return; }
+    var n = QM[i][0];
+    download(n).then(next, function(){ allRunning = false; cancelAll = false; render(); });
+  };
+  next();
+}
+$q('qList').addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('button') : null; if (!b) return;
+  if (b.dataset.p) toggle(+b.dataset.p);
+  else if (b.dataset.l) { download(+b.dataset.l).catch(function(){}); }
+  else if (b.dataset.d) {
+    var n = +b.dataset.d;
+    if (cur === n && !audio.paused) audio.pause();
+    openCache().then(function(c){ return c.delete(qurl(n)); }).then(function(){ delete have[n]; render(); }).catch(function(){});
+  }
+});
+$q('qAll').onclick = downloadAll;
+$q('qMiniP').onclick = function(){ if (cur) toggle(cur); };
+$q('qMiniN').onclick = function(){ if (cur && cur < 114) play(cur + 1, true); };
+$q('qMiniB').onclick = function(){ showTab('quran'); };
+$q('qVol').value = Math.round(qvol * 100);
+$q('qVol').addEventListener('input', function(){ qvol = Math.max(0, Math.min(1, +this.value / 100)); audio.volume = qvol; store('quran-vol.v1', qvol); });
+window.renderQuran = function() { refreshHave().then(function(){ render(); var r = $q('qr' + cur); }); };
+var last = read('quran-last.v1', 0); if (last >= 1 && last <= 114) { cur = last; }
+window.__qa = audio;
+try { var um = document.getElementById('updMsg'); if (um && !um.textContent) um.textContent = 'النسخة اللي عندك: الإصدار ٢٣'; } catch(e) {}
+render(); refreshHave().then(render);
+})();
 </script>
 
 <div id="update-banner" style="display:none;position:fixed;bottom:16px;right:16px;left:16px;z-index:99999;background:#1d4f47;color:#fff;padding:14px 16px;border-radius:12px;text-align:center;font-size:15px;box-shadow:0 4px 16px rgba(0,0,0,.35);direction:rtl;font-family:inherit">
@@ -1300,7 +1517,7 @@ $('splash').addEventListener('click', hideSplash);
         var w2 = reg.installing || reg.waiting;
         if (w2) { done = true; clearTimeout(guard); say('لقيت نسخة جديدة، بتتثبّت دلوقتي...'); try { w2.postMessage({type:'SKIP_WAITING'}); } catch(e) {} return; }
         done = true; clearTimeout(guard);
-        say('إنتي على آخر نسخة ✓ (الإصدار ٢٢)');
+        say('إنتي على آخر نسخة ✓ (الإصدار ٢٣)');
       }, 1500);
     }).catch(function(){
       if (done) return;
@@ -1320,4 +1537,4 @@ $('splash').addEventListener('click', hideSplash);
 })();
 </script>
 </body>
-           </html>
+</html>
