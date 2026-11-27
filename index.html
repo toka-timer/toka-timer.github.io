@@ -185,6 +185,7 @@
   .dcard h3 { font-size:17px; margin-bottom:4px; } .dcard .by { font-size:13px; color:var(--teal); font-weight:600; margin-bottom:8px; }
   .dcard p { font-size:14px; line-height:1.9; color:var(--ink2); margin-bottom:10px; }
   .dlink { display:block; text-align:center; background:var(--teal); color:#fff; border-radius:12px; padding:12px 14px; font-size:15px; font-weight:700; text-decoration:none; margin-top:8px; }
+  button.dlink { width:100%; border:none; font-family:inherit; }
   .dlink.alt { background:none; color:var(--teal); border:1px solid var(--teal); }
 </style>
 </head>
@@ -422,34 +423,34 @@
     <label class="lbl" id="hdLbl"></label>
     <textarea id="hdNote" maxlength="4000"></textarea>
     <p class="cap" id="hdSaved" style="min-height:20px"></p>
-    <details class="note" style="margin-top:10px"><summary><b>ملاحظاتي اللي فاتت</b></summary><div id="hdHist"></div></details>
-    <p class="cap" style="margin-top:10px">سؤال جديد كل يوم، ومفيش حد يقدر يغيّره. كل اللي بتكتبيه بيتحفظ على جهازك بس ومبيروحش لأي مكان.</p>
+    <div class="note" style="margin-top:14px"><b id="hdHistT">إجاباتي اللي فاتت</b><div id="hdHist"></div></div>
+    <p class="cap" style="margin-top:10px">سؤال جديد كل يوم. تقدري تعدّلي إجابة النهارده لحد آخر اليوم، وبعد كده بتتقفل وتفضل للقراءة بس. كل اللي بتكتبيه بيتحفظ على جهازك بس ومبيروحش لأي مكان.</p>
   </section>
 </div>
 <div id="tabDeen" style="display:none">
   <section>
     <h2>اعرف دينك أكتر 📖</h2>
-    <p class="cap">دي روابط لمحتوى مجاني على القنوات الرسمية لأصحابه. بتفتح في تطبيق يوتيوب أو المتصفح وبتحتاج نت، ومفيش حاجة منها بتتنزّل على جهازك من هنا.</p>
+    <p class="cap">بتشغّلي الحلقة جوا التطبيق نفسه من غير ما تروحي لصفحة يوتيوب، فمفيش ريلز ولا اقتراحات من برّه. لازم نت، ومفيش حاجة بتشتغل لوحدها ولا بتتنزّل: الفيديو مبيحمّلش غير لما تدوسي تشغيل، وبياخد من باقة النت زي أي فيديو.</p>
     <div class="dcard">
       <h3>السيرة النبوية ﷺ</h3>
-      <div class="by">أحمد عامر · قناته على يوتيوب</div>
-      <p>سلسلة السيرة النبوية بأسلوب مبسّط، حلقة بعد حلقة (حوالي ٢٦ حلقة في القايمة).</p>
-      <a class="dlink" href="https://www.youtube.com/playlist?list=PLSSxr3Rf2_X2oKwiy4UhzIdj4ACzB6dee" target="_blank" rel="noopener">افتح القايمة على يوتيوب ▶</a>
-      <a class="dlink alt" href="https://www.youtube.com/@ahmedamer2692" target="_blank" rel="noopener">قناة أحمد عامر</a>
+      <div class="by">أحمد عامر</div>
+      <p>سلسلة السيرة النبوية بأسلوب مبسّط، حلقة بعد حلقة (حوالي ٢٦ حلقة). تقدري تتنقلي بين الحلقات من جوا المشغّل.</p>
+      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=PLSSxr3Rf2_X2oKwiy4UhzIdj4ACzB6dee&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>بودكاست فاهم</h3>
       <div class="by">تقديم هلال السيد</div>
-      <p>حلقات مع متخصصين عن الدين والحياة من منظور إسلامي.</p>
-      <a class="dlink" href="https://www.youtube.com/@fahem.podcast" target="_blank" rel="noopener">قناة فاهم على يوتيوب ▶</a>
+      <p>حلقات مع متخصصين عن الدين والحياة من منظور إسلامي. بيشغّل أحدث الحلقات، وتقدري تختاري غيرها من جوا المشغّل.</p>
+      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUuIayeub56xP83u7u-_d-SQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <div class="dembed"></div>
     </div>
     <div class="dcard">
       <h3>بودكاست إيه المشكلة؟</h3>
       <div class="by">د. محمد الغليظ، د. أمير منير، م. ياسر ممدوح</div>
-      <p>أسئلة الشباب في الدين والعلاقات وتحديات الحياة، برؤية عملية هادية.</p>
-      <a class="dlink" href="https://www.youtube.com/@Eh_El_Moshkla" target="_blank" rel="noopener">قناة إيه المشكلة على يوتيوب ▶</a>
-      <a class="dlink alt" href="https://open.spotify.com/show/7xSQNCga4P6mujNC09wAET" target="_blank" rel="noopener">على Spotify</a>
-      <a class="dlink alt" href="https://eh-elmoshkela.com/" target="_blank" rel="noopener">الموقع الرسمي</a>
+      <p>أسئلة الشباب في الدين والعلاقات وتحديات الحياة. بيشغّل أحدث الحلقات، وتقدري تختاري غيرها من جوا المشغّل.</p>
+      <button class="dlink dplay" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UUQ2X_YPmdjBOjVq6dLbO0pQ&rel=0&playsinline=1&iv_load_policy=3">▶ شغّلي هنا</button>
+      <div class="dembed"></div>
     </div>
     <p class="cap" id="deenOff" style="color:#b0455a"></p>
   </section>
@@ -1320,19 +1321,32 @@ function renderHudoo() {
   var cur = hdNotes[hdCurKey];
   var ta = document.getElementById('hdNote'); if (document.activeElement !== ta) ta.value = cur ? cur.t : '';
   document.getElementById('hdSaved').textContent = '';
-  var keys = Object.keys(hdNotes).filter(function(k){ return k !== hdCurKey && hdNotes[k] && hdNotes[k].t; }).sort().reverse().slice(0, 60);
+  var keys = Object.keys(hdNotes).filter(function(k){ return k !== hdCurKey && hdNotes[k] && hdNotes[k].t; }).sort().reverse().slice(0, 400);
   var h = '';
   keys.forEach(function(k){
     var p = k.split('-'); var e = hdNotes[k];
     var esc = function(x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
     h += '<div class="hdh"><b>' + ar(+p[2]) + '/' + ar(+p[1]) + '/' + ar(+p[0]) + '</b><i>' + esc(hqGender(HQ[e.q] || '')) + '</i>' + esc(e.t).replace(/\n/g, '<br>') + '</div>';
   });
+  document.getElementById('hdHistT').textContent = 'إجاباتي اللي فاتت' + (keys.length ? ' (' + ar(keys.length) + ')' : '');
   document.getElementById('hdHist').innerHTML = h || '<p class="cap">لسه مفيش ملاحظات قديمة.</p>';
 }
 document.getElementById('hdNote').addEventListener('input', function(){ clearTimeout(hdTimer); hdTimer = setTimeout(hdSave, 500); });
 document.getElementById('hdNote').addEventListener('blur', hdSave);
 document.addEventListener('visibilitychange', function(){ if (document.hidden) hdSave(); else if (activeTab === 'hudoo') { var k = hdKey(new Date()); if (k !== hdCurKey) { hdSave(); renderHudoo(); } } });
 window.addEventListener('pagehide', hdSave);
+
+function deenClose() { var bs = document.querySelectorAll('.dembed'); for (var i = 0; i < bs.length; i++) { bs[i].innerHTML = ''; } var pb = document.querySelectorAll('.dplay'); for (var j = 0; j < pb.length; j++) { pb[j].style.display = ''; } }
+document.getElementById('tabDeen').addEventListener('click', function(e) {
+  var t = e.target;
+  if (t.classList && t.classList.contains('dplay')) {
+    if (!navigator.onLine) { document.getElementById('deenOff').textContent = 'مفيش نت دلوقتي. التشغيل محتاج نت.'; return; }
+    deenClose();
+    var box = t.parentNode.querySelector('.dembed');
+    box.innerHTML = '<iframe src="' + t.getAttribute('data-src') + '" title="مشغّل الفيديو" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#000;margin-top:8px"></iframe><button class="dlink alt dclose">إغلاق المشغّل ✕</button>';
+    t.style.display = 'none';
+  } else if (t.classList && t.classList.contains('dclose')) { deenClose(); }
+});
 function openDrawer() { document.getElementById('drawerBg').style.display = 'block'; var d = document.getElementById('drawer'); d.classList.add('open'); d.setAttribute('aria-hidden', 'false'); }
 function closeDrawer() { document.getElementById('drawerBg').style.display = 'none'; var d = document.getElementById('drawer'); d.classList.remove('open'); d.setAttribute('aria-hidden', 'true'); }
 document.getElementById('menuBtn').onclick = function() { if (document.getElementById('drawer').classList.contains('open')) closeDrawer(); else openDrawer(); };
@@ -1340,6 +1354,7 @@ document.getElementById('drawerBg').onclick = closeDrawer;
 document.getElementById('drawer').addEventListener('click', function(e) {
   var b = e.target.closest ? e.target.closest('.dritem') : null; if (!b) return;
   if (activeTab === 'hudoo') hdSave();
+  try { deenClose(); } catch (e) {}
   showTab(b.getAttribute('data-go'));
 });
 function showTab(t) {
@@ -1360,7 +1375,7 @@ function showTab(t) {
   try { var di = document.querySelectorAll('.dritem'); for (var k = 0; k < di.length; k++) di[k].classList.toggle('sel', di[k].getAttribute('data-go') === t); } catch (e) {}
   try { closeDrawer(); } catch (e) {}
   if (t === 'hudoo') { try { renderHudoo(); } catch (e) {} window.scrollTo(0, 0); }
-  if (t === 'deen') { try { var off = document.getElementById('deenOff'); if (off) off.textContent = navigator.onLine ? '' : 'مفيش نت دلوقتي. الروابط دي هتشتغل لما توصّلي نت.'; } catch (e) {} window.scrollTo(0, 0); }
+  if (t === 'deen') { try { var off = document.getElementById('deenOff'); if (off) off.textContent = navigator.onLine ? '' : 'مفيش نت دلوقتي. التشغيل محتاج نت.'; } catch (e) {} window.scrollTo(0, 0); }
   if (t === 'cal') { calSel = ''; calY = 0; try { renderCalendar(); } catch (e) {} window.scrollTo(0, 0); }
 }
 $('tabBtnSetup').onclick = function() { showTab('setup'); };
