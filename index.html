@@ -272,6 +272,8 @@
     <span class="lbl" style="margin-top:10px">الشاشة</span>
     <button class="outline" id="wakeBtn">الشاشة صاحية وقت الجلسة: شغال ☀️</button>
     <p class="cap" id="wakeMsg"></p>
+    <span class="lbl" style="margin-top:10px">الشغل بدون نت</span>
+    <p class="cap" id="offState" style="font-weight:700">بنتأكد...</p>
     <span class="lbl" style="margin-top:10px">التحديثات</span>
     <button class="outline" id="updBtn">دوّر على تحديث</button>
     <p class="cap" id="updMsg"></p>
@@ -1782,6 +1784,37 @@ render(); refreshHave().then(render);
   } catch(e) {} }
   window.addEventListener('load', function(){ setTimeout(go, 3000); });
 } catch(e) {} })();
+</script>
+<script>
+/* offline-ready indicator: true only if the service worker controls the page and every core + media file is in the app cache */
+(function(){
+  var FILES = ['./','./index.html','./manifest.webmanifest','./icon.svg','./ypt1.p0','./ypt1.p1','./ypt1.p2','./ypt1.p3','./ypt1.p4','./ypt1.p5','./ypt2.p0','./ypt2.p1','./rain.p0','./rain.p1','./rain.p2'];
+  var el = document.getElementById('offState');
+  function say(t, ok){ if (!el) return; el.textContent = t; el.style.color = ok ? '#2b6a5f' : '#b0455a'; }
+  function check(){
+    try {
+      if (!el) return;
+      if (!('serviceWorker' in navigator) || !window.caches) { say('المتصفح ده مش بيدعم الشغل بدون نت.', false); return; }
+      if (!navigator.serviceWorker.controller) { say('لسه مش جاهز للشغل بدون نت. افتح التطبيق مرة على نت كويس وسيبه حوالي ١٠ ثواني، وبعدين اقفله وافتحه.', false); return; }
+      caches.keys().then(function(keys){
+        var names = keys.filter(function(k){ return k.indexOf('toka-timer-v') === 0; });
+        if (!names.length) return false;
+        names.sort(function(a,b){ return parseInt(a.split('-v')[1],10) - parseInt(b.split('-v')[1],10); });
+        return caches.open(names[names.length-1]).then(function(c){
+          return Promise.all(FILES.map(function(f){ return c.match(f); }));
+        }).then(function(r){ return r.every(function(x){ return !!x; }); });
+      }).then(function(ok){
+        if (ok) {
+          say('جاهز للعمل بدون نت ✓', true);
+          try { if (!localStorage.getItem('persist-asked.v1') && navigator.storage && navigator.storage.persist) { navigator.storage.persist(); localStorage.setItem('persist-asked.v1', '1'); } } catch(e) {}
+        } else say('لسه مش جاهز للشغل بدون نت. افتح التطبيق مرة على نت كويس وسيبه حوالي ١٠ ثواني، وبعدين اقفله وافتحه.', false);
+      }).catch(function(){ say('مقدرتش أتأكد دلوقتي.', false); });
+    } catch(e) {}
+  }
+  window.addEventListener('load', function(){ setTimeout(check, 2500); setTimeout(check, 12000); });
+  window.addEventListener('online', function(){ setTimeout(check, 4000); });
+  try { navigator.serviceWorker.addEventListener('controllerchange', function(){ setTimeout(check, 3000); }); } catch(e) {}
+})();
 </script>
 </body>
 </html>
