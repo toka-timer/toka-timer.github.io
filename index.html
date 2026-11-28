@@ -146,6 +146,7 @@
   body.g-f main { background:#fff7f9; }
   body.g-m { --teal:#3d5a80; }
   body.g-m main { background:#f6f8fc; }
+  .clock.long { font-size:52px; } @media (min-width:768px) { .clock.long { font-size:72px; } }
   @media (min-width:768px) { .clock { font-size:96px; } .inner { min-height:440px; } main { padding:36px 32px 120px; } }
   #tabTimer { min-height: calc(100dvh - 150px); }
   #tabTimer .panel { min-height: calc(100dvh - 150px); margin-bottom:0; display:flex; }
@@ -233,7 +234,13 @@
     <div class="chips" id="presets"></div>
     <span class="lbl">أو حدّد بالدقيقة: <bdi id="minVal">25</bdi> دقيقة</span>
     <input type="range" id="slider" min="1" max="120" value="25">
-    <p class="cap">من دقيقة لحد ساعتين.</p>
+    <p class="cap">السلايدر من دقيقة لحد ساعتين. لو عايز أكتر، اكتب المدة بنفسك (لحد ١٢ ساعة):</p>
+    <div class="cdur" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;direction:rtl">
+      <label>ساعات <input type="number" id="cH" inputmode="numeric" min="0" max="12" step="1" style="width:74px;padding:8px;font-size:16px;border:1px solid var(--hair);border-radius:10px"></label>
+      <label>دقايق <input type="number" id="cM" inputmode="numeric" min="0" max="59" step="1" style="width:74px;padding:8px;font-size:16px;border:1px solid var(--hair);border-radius:10px"></label>
+      <button class="outline" id="cSet" type="button">تمام</button>
+    </div>
+    <p class="cap" id="cMsg" style="color:#b0455a"></p>
   </section>
 
   <section>
@@ -593,7 +600,7 @@ function store(k, val) { try { localStorage.setItem(k, JSON.stringify(val)); ret
 function read(k, dflt) { try { var v = localStorage.getItem(k); return v === null ? dflt : JSON.parse(v); } catch(e) { return dflt; } }
 function todayKey() { var n = new Date(); return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0'); }
 function formatDay(key) { var p = key.split('-'); return new Date(+p[0], +p[1]-1, +p[2]).toLocaleDateString('ar-EG', { weekday:'long', day:'numeric', month:'long' }); }
-function fmt(t) { return String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0'); }
+function fmt(t) { if (t >= 3600) { return String(Math.floor(t/3600)) + ':' + String(Math.floor(t%3600/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0'); } return String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0'); }
 
 var userName = read('user-name.v1', '');
 var userGender = read('user-gender.v1', '');
@@ -713,6 +720,8 @@ function applyGender() {
 
 function render() {
   $('clock').textContent = fmt(remaining);
+  $('clock').className = $('clock').className.replace(/ ?\blong\b/g,'') + (remaining >= 3600 ? ' long' : '');
+  try { var ch = $('cH'), cm = $('cM'); if (document.activeElement !== ch && document.activeElement !== cm) { ch.value = Math.floor(minutes/60); cm.value = minutes%60; } } catch(e) {}
   $('minVal').textContent = minutes;
   $('slider').value = minutes;
   var midSession = running || remaining < minutes * 60;
@@ -878,6 +887,16 @@ makeChips('ratings', RATINGS, function(v){ rating = { d: todayKey(), v: v }; sto
 makeChips('rangeSeg', [ {v:'7', l:'٧ أيام'}, {v:'30', l:'٣٠ يوم'} ], function(v){ reviewRange = +v; renderReview(); });
 makeChips('streakChips', [ {v:'flame', l:'نار 🔥'}, {v:'bow', l:'فيونكة 🎀'}, {v:'rocket', l:'صاروخ 🚀'} ], function(v){ streakStyle = v; store('streak-style.v1', streakStyle); render(); });
 
+$('cSet').onclick = function() {
+  var h = Math.floor(+$('cH').value || 0), m = Math.floor(+$('cM').value || 0), msg = $('cMsg');
+  var t = h*60 + m;
+  if (!(t >= 1)) { msg.textContent = 'اكتب مدة من دقيقة على الأقل.'; return; }
+  if (t > 720) { t = 720; msg.textContent = 'أقصى مدة ١٢ ساعة، ظبطناها على ١٢ ساعة.'; } else { msg.textContent = ''; }
+  if (running && !confirm('الجلسة شغالة. تغيير المدة هيبدأ من الأول. تكمل؟')) return;
+  minutes = t; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-run.v1', null); store('timer-minutes.v1', minutes);
+  try { $('cH').blur(); $('cM').blur(); } catch(e) {}
+  render();
+};
 $('slider').oninput = function() { minutes = +this.value; remaining = minutes*60; running = false; finished = false; stopTick(); store('timer-minutes.v1', minutes); render(); };
 
 function addTask() {
